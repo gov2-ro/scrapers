@@ -1,60 +1,54 @@
-import scrapy
 import sqlite3
+import scrapy
+from scrapy.utils.project import get_project_settings
+from scrapy.crawler import CrawlerRunner
 
-class MySpider(scrapy.Spider):
-    name = 'my_spider'
+# Connect to the database
+conn = sqlite3.connect('../data/cdep/cdep.db')
+c = conn.cursor()
+src_table = 'src_years'
+table = 'laws_index'
+c.execute('''CREATE TABLE IF NOT EXISTS ''' + table + '''
+             (src_id TEXT, nrcrt TEXT, id_lege TEXT, titlu TEXT, stadiu TEXT, url TEXT)''')
 
-    def start_requests(self):
-        db_conn = sqlite3.connect(self.db)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute("SELECT id, url FROM " + self.table)
-        urls = db_cursor.fetchall()
-        db_conn.close()
+# Define the scrapy spider
+class LawsSpider(scrapy.Spider):
+    name = 'laws_spider'
 
-        for url in urls:
-            yield scrapy.Request(url=url[1], callback=self.parse, meta={'id': url[0]})
+    # Define the start URLs from the src_years table
+    start_urls = []
+    for row in c.execute('SELECT url, id FROM ' + src_table):
+        start_urls.append(row[0])
+        src_id = row[1]
 
+    # Parse the response from each URL
     def parse(self, response):
-        src_id = response.meta['id']
+        # Loop through each row in the grup-parlamentar-list table
+        for row in response.xpath('//div[@class="grup-parlamentar-list"]/table/tr'):
+            # Extract the columns
+            columns = row.xpath('td')
 
-        db_conn = sqlite3.connect(self.db)
-        db_cursor = db_conn.cursor()
-        db_cursor.execute('''CREATE TABLE IF NOT EXISTS ''' + self.table + '''
-                 (src_id TEXT, nrcrt TEXT, id_lege TEXT, titlu TEXT, stadiu TEXT, url TEXT)''')
+            # Extract the text and href values from the second column
+            link_text = columns[1].xpath('a/text()').get()
+            link_href = columns[1].xpath('a/@href').get()
 
-        for row in response.xpath('//div[@class="grup-parlamentar-list"]/table/tbody/tr'):
-            columns = row.xpath('./td')
+            # Store the data in the laws_index table
+            c.execute('INSERT INTO laws_index (nrcrt, id_lege, url, titlu, stadiu, src_id) VALUES (?, ?, ?, ?, ?, ?)',
+                      (columns[0].xpath('text()').get(),
+                       link_text,
+                       columns[2].xpath('text()').get(),
+                       columns[3].xpath('text()').get(),
+                       src_id))
 
-            data = {
-                'src_id': src_id,
-                'nrcrt': columns[0].xpath('./text()').get(),
-                'id_lege': columns[1].xpath('./text()').get(),
-                'url': columns[1].xpath('./a/@href').get(),
-                'titlu': columns[2].xpath('./text()').get(),
-                'stadiu': columns[3].xpath('./text()').get(),
-            }
+            # Commit the changes to the database
+            conn.commit()
 
-            db_cursor.execute('INSERT INTO ' + self.table + ' (src_id, nrcrt, id_lege, titlu, stadiu, url) VALUES (?, ?, ?, ?, ?)', (data['src_id'], data['nrcrt'], data['id_lege'], data['titlu'], data['stadiu'], data['url']))
-        print('-')
-        db_conn.commit()
-        db_conn.close()
+# Set up the crawler
+settings = get_project_settings()
+settings['REQUEST_FINGERPRINTER_IMPLEMENTATION'] = 'scrapy.fingerprint.NoopFingerprinter'
+runner = CrawlerRunner(settings)
 
-db_filename = '../data/cdep/cdep.db'
-table = 'src_years'
+# Run the spider
+runner.crawl(LawsSpider)
+runner.join()
 
-def crawl(db, table):
-    process = scrapy.crawler.CrawlerProcess(settings={
-        'USER_AGENT': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'DOWNLOAD_DELAY': 1.6
-    })
-
-    spider = MySpider()
-    spider.db = db
-    spider.table = table
-
-    process.crawl(spider)
-    process.start()
-
-crawl(db_filename, table)
-
-print('done')
