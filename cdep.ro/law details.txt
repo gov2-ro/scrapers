@@ -1,0 +1,54 @@
+using bs4 and python, given an url scrape the following parts of the page and save them in a sqlite table row. After css paths I put the  sqlite column names.
+ 
+(1) div.boxTitle h1 (title)
+(2) div.detalii-initiativa h4 (descriere)
+
+for the following table: div.detalii-initiativa table 
+go through rows, and get values from the second column, using the text in the first column to determine variable (sql column) name
+
+detect variable names based if substring found in the first column (first td of each row):
+if none of the given substrings are found in first table, skip the row
+
+(3) 'Nr. înregistrare' -> ('nr_inregistrare')
+(4) 'Camera Deputatilor' -> ('cdep')
+(5) 'Senat' -> ('senat')
+(6) 'Guvern' -> ('guvern')
+(7) 'Procedura legislativa' -> ('proc_leg')
+(8) 'Camera decizionala' -> ('camera_decizionala')
+(9) 'Termen adoptare' -> ('termen_adoptare')
+(10) 'Tip initiativa' -> ('tip_initiativa')
+(11) 'Caracter' -> ('caracter')
+(12) 'Procedura de urgenta' -> ('p_urgenta')
+(13) 'Stadiu' -> ('stadiu')
+
+there are 2 special rows, which may contain  tables in the second td
+
+'Initiator' -> (stored in 2 columns: 'initiator' and 'initiatori')
+(14) for 'initiator': 
+save the text in the cell that's not found inside an inner table.
+if a table is found inside the table row (td) after the 'Initiator' row, save information from that row as json. see example below.
+
+(15) for 'initiatori':
+if the html code for the Initiator row looks like this:
+<tr valign="top"><td bgcolor="#fff0d8">Initiator:<br><br><b>- la data initierii</b> </td><td>10 deputati+senatori, din care:<table><tbody><tr valign="top"><td nowrap="">deputati - PSD:</td><td><a href="/pls/parlam/structura2015.mp?idm=138&amp;leg=2008&amp;cam=2">Hrebenciuc&nbsp;Viorel</a>, <a href="/pls/parlam/structura2015.mp?idm=147&amp;leg=2008&amp;cam=2">Iordache&nbsp;Florin</a>, <a href="/pls/parlam/structura2015.mp?idm=192&amp;leg=2008&amp;cam=2">Năstase&nbsp;Adrian</a>, <a href="/pls/parlam/structura2015.mp?idm=238&amp;leg=2008&amp;cam=2">Pop&nbsp;Georgian</a>, <a href="/pls/parlam/structura2015.mp?idm=267&amp;leg=2008&amp;cam=2">Săniuţă&nbsp;Marian-Florian</a>, <a href="/pls/parlam/structura2015.mp?idm=282&amp;leg=2008&amp;cam=2">Steriu&nbsp;Valeriu-Andrei</a>, <a href="/pls/parlam/structura2015.mp?idm=305&amp;leg=2008&amp;cam=2">Tudose&nbsp;Mihai</a>, <a href="/pls/parlam/structura2015.mp?idm=319&amp;leg=2008&amp;cam=2">Vasile&nbsp;Aurelia</a>, <a href="/pls/parlam/structura2015.mp?idm=325&amp;leg=2008&amp;cam=2">Vlădoiu&nbsp;Aurel</a></td></tr><tr valign="top"><td nowrap="">senatori - PNL:</td><td><a href="/pls/parlam/structura2015.mp?idm=35&amp;leg=2008&amp;cam=1">Corlăţean&nbsp;Titus</a></td></tr></tbody></table></td></tr>
+
+data should be stored like this
+in 'initiator' column save '10 deputati+senatori, din care:'
+in 'initiatori' columns save the following json 
+{'deputati - PSD':{20082138: 'Hrebenciuc Viorel',20082147: 'Iordache Florin',20082192: 'Năstase Adrian',20082238: 'Pop Georgian',20082267: 'Săniuţă Marian-Florian',20082282: 'Steriu Valeriu-Andrei',20082305: 'Tudose Mihai',20082319: 'Vasile Aurelia',20082325: 'Vlădoiu Aurel'}, 'senatori - PNL': {2008135: 'Corlăţean Titus'}}
+
+the key is the text string found in the first td (ex: 'deputati - PSD')
+the inner object key number is based on the href url variables (?idm=35&amp;leg=2008&amp;cam=1), key = leg + cam + idm -> 2008135
+
+'Consultati' -> (stored into 2 columns: 'consultanti', 'caseta_lista') 
+(16) for 'consultanti': if table found inside the td, navigate each row, look for href url from the first column (td) link and for the text in the second td, which will determine the variable name.
+if the found table looks like this:
+<table><tbody><tr valign="top"><td width="20"><a href="/proiecte/2010/000/00/8/em8.pdf" target="PDF"><img src="/img/icon_pdf_small.gif" border="0" alt="Format PDF - 115 kb"></a></td><td colspan="3" width="100%">Expunerea de motive</td></tr><tr valign="top"><td width="20"><a href="/proiecte/2010/000/00/8/pl8.pdf" target="PDF"><img src="/img/icon_pdf_small.gif" border="0" alt="Format PDF - 35 kb"></a></td><td colspan="3" width="100%">Forma iniţiatorului</td></tr><tr valign="top"><td width="20"><a href="/proiecte/2010/000/00/8/pvg8.pdf" target="PDF"><img src="/img/icon_pdf_small.gif" border="0" alt="Format PDF - 159 kb"></a></td><td colspan="3" width="100%">Punctul de vedere al Guvernului</td></tr><tr><td colspan="5">mai multe documente la <a href="/pls/caseta/eCaseta.Lista?nrp=8&amp;anp=2010">caseta electronica a deputatului</a></td></tr></tbody></table>
+
+data should be stored like this: {'Expunerea de motive': '/proiecte/2010/000/00/8/em8.pdf', 'Forma iniţiatorului': '/proiecte/2010/000/00/8/pl8.pdf', 'Punctul de vedere al Guvernului':'/proiecte/2010/000/00/8/pvg8.pdf'}
+
+variable name (sql table column name) is found in the second td, value is saved from the href field of the link in the first td
+
+(17) for 'caseta_lista':
+if the 'Consultanti' row second td also contains text outside the table, and if there's a link inside of that text that contains the 'eCaseta.Lista' substring, save the url variables
+example: from https://www.cdep.ro/pls/caseta/eCaseta.Lista?nrp=8&anp=2010 save 'nrp=8&anp=2010'
