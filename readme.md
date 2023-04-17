@@ -1,3 +1,3 @@
 scrapers
 
-[ ] proiecte legislative cdep
+- [ ] proiecte legislative cdep

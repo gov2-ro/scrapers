@@ -6,13 +6,11 @@ from urllib.parse import parse_qs, urlparse
 import logging
 
 
+db_filename = '../data/cdep/cdep.db'
+table = 'laws'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# set up the SQLite database connection
-conn = sqlite3.connect('example.db')
-c = conn.cursor()
 
 
 def hrefs_json1(input_soup):
@@ -33,7 +31,8 @@ def table_initiatori(inner_table):
         print('-row--')
         subcells = row.find_all('td')
         if len(subcells) >= 2:
-            subkey = subcells[0].text.replace(":", "").replace(" - ", " ").strip()
+            # breakpoint()
+            subkey = subcells[0].text
             print(subkey)
             # subvalue = subcells[1].text.strip()
             zilist = subcells[1]
@@ -66,12 +65,6 @@ def hrefs2(input_soup):
     for a_tag in input_soup.find_all('a'):
         hrefz = a_tag['href']
 
-# create a table for the scraped data
-c.execute('''CREATE TABLE IF NOT EXISTS initiatives
-             (title TEXT, descriere TEXT, nr_inregistrare TEXT, cdep TEXT,
-              senat TEXT, guvern TEXT, proc_leg TEXT, camera_decizionala TEXT,
-              termen_adoptare TEXT, tip_initiativa TEXT, caracter TEXT, p_urgenta TEXT,
-              stadiu TEXT, initiator TEXT, initiatori TEXT, consultanti TEXT, caseta_lista TEXT)''')
 
 # set the URL to scrape
 url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
@@ -87,6 +80,20 @@ print(title + ' --> ' + descriere)
 # scrape the table data
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
 data = {}
+data ={
+    "nr_inregistrare":"",
+    "cdep":"",
+    "senat":"",
+    "guvern":"",
+    "proc_leg":"",
+    "camera_decizionala":"",
+    "termen_adoptare":"",
+    "tip_initiativa":"",
+    "caracter":"",
+    "p_urgenta":"",
+    "stadiu":""
+}
+# data = {"nr_inregistrare":"","cdep":"","senat":"","guvern":"","proc_leg":"","camera_decizionala":"","termen_adoptare":"","tip_initiativa":"","caracter":"","p_urgenta":"","stadiu:"}
 for row in detalii_initiativa_rows:
     tds = row.find_all('td')
     if len(tds) >= 2:
@@ -94,7 +101,7 @@ for row in detalii_initiativa_rows:
         value = tds[1].text.strip()
 
         # detect the variable name based on the substring found in the first column
-        if 'Nr. înregistrare' in key:
+        if 'nregistrare' in key:
             data['nr_inregistrare'] = value
         elif 'Camera Deputatilor' in key:
             data['cdep'] = value
@@ -136,5 +143,29 @@ for row in detalii_initiativa_rows:
             else:
                 data['consultanti'] = value
         
+# write to db
+# set up the SQLite database connection
 
-# breakpoint()
+conn = sqlite3.connect(db_filename)
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS laws
+             (title text, descriere text, nr_inregistrare text, cdep text, senat text,
+              guvern text, proc_leg text, camera_decizionala text, termen_adoptare text,
+              tip_initiativa text, caracter text, p_urgenta text, stadiu text,
+              initiator text, initiatori text, consultanti text, caseta_lista text)''')
+
+# for xrow in data:
+try:
+    # xx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare,tip_initiativa, caracter, p_urgenta, stadiu,initiator, initiatori, consultanti) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (xrow['nr_inregistrare'], xrow['cdep'], xrow['senat'], xrow['guvern'], xrow['proc_leg'], xrow['camera_decizionala'], xrow['termen_adoptare'], xrow['tip_initiativa'], xrow['caracter'], xrow['p_urgenta'], xrow['stadiu'], xrow['initiatori'], xrow['initiatori'], xrow['initiator'], xrow['initiatori'], xrow['consultanti'], xrow['consultanti'])
+    xx = "INSERT INTO " + table + " (nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu) VALUES (\"" + data['nr_inregistrare']+"\", \""+data['cdep']+"\", \""+data['senat']+"\", \""+data['guvern']+"\", \""+data['proc_leg']+"\", \""+data['camera_decizionala']+"\", \""+data['termen_adoptare']+"\", \""+data['tip_initiativa']+"\", \""+data['caracter']+"\", \""+data['p_urgenta']+"\", \""+data['stadiu'] + "\")"
+
+
+    c.execute(xx)
+except Exception as e:
+    logger.error('eRrx: '+ str(e))
+    breakpoint()
+
+conn.commit()
+conn.close()
+
+print(f'Data written to {db_filename}')
