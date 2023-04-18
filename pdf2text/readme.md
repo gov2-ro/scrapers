@@ -1,0 +1,5 @@
+- [ ] structured text/html from PDF
+    - [x] PyPDF2 (text)
+    - [x] pdf2docx - FAILS?
+    - [ ] PyMuPDF
+    - [x] pdfminer/pdf2txt
