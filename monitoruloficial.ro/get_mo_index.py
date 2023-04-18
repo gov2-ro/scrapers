@@ -24,12 +24,15 @@ record to SQLite
 
 db_filename = '../data/mo/mo.db'
 table_name = 'dates_lists'
-cache_dir = '../data/mo/cache/'
+cache_dir = '../data/mo/html_cache/'
 url = 'https://monitoruloficial.ro/ramo_customs/emonitor/get_mo.php'
 start_date = '2000-01-04'
 end_date = '2023-04-18'
-start_date = '2017-07-15'
-end_date = '2017-07-21'
+start_date = '2017-07-01'
+end_date = '2017-07-04'
+save_to_cache = True
+save_to_db = True
+
 
 zidates = generate_dates(start_date, end_date, '%Y-%m-%d')
 
@@ -51,13 +54,19 @@ headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest'
 }
-ii = 1
+ii = 0
+
+conn = sqlite3.connect(db_filename)
+c = conn.cursor()
+c.execute('''CREATE TABLE IF NOT EXISTS ''' + table_name + '''
+            ("date"	TEXT,
+            "json"	TEXT,
+            PRIMARY KEY("date"))''')
+
+
 for oneday in zidates:
-    rows_to_insert = []
-    data = {
-        'today': oneday,
-        'rand': random.random()
-    }
+    rows_to_insert = [] #db rows
+    data = {'today': oneday, 'rand': random.random() }
 
     try:
         response = requests.post(url, headers=headers, data=data)
@@ -68,40 +77,27 @@ for oneday in zidates:
     for div in soup.find_all('div', class_='card-body'):
         ol = div.find('ol', class_='breadcrumb')
         key = ol.text.strip()
+        # TODO: encode keys ex: Partea I -> PI, Partea II-a -> PII, Partea I Maghiară -> PIM
         value = {a.text: a['href'] for a in div.find_all('a', class_='btn')}
         json_data[key] = value
     json_result = json.dumps(json_data, ensure_ascii=False)
-    # print(json_result)
     rows_to_insert.append((oneday, json_result))
 
-    # save to file
     # save the HTML content to a file
-    with open(cache_dir + str(oneday)+ ".html", "w", encoding="utf-8") as f:
-        f.write(soup.prettify())
-        print ('written to ' + cache_dir + str(oneday)+ ".html") 
+    if save_to_cache:
+        with open(cache_dir + str(oneday)+ ".html", "w", encoding="utf-8") as f:
+            f.write(soup.prettify())
+            print ('written to ' + cache_dir + str(oneday)+ ".html") 
 
-    time.sleep(random.random()*3)
-    
-    # Connect to the database
-    conn = sqlite3.connect(db_filename)
-    c = conn.cursor()
+    if save_to_db:
+        sql = '''INSERT INTO {} (date, json) VALUES (?, ?)
+                ON CONFLICT(date) DO NOTHING'''.format(table_name)
+        c.executemany(sql, rows_to_insert)
+        conn.commit() 
 
-    # Create the laws_index table
-    c.execute('''CREATE TABLE IF NOT EXISTS ''' + table_name + '''
-                ("date"	TEXT,
-                "json"	TEXT,
-                PRIMARY KEY("date"))''')
-
-    # c.executemany('''INSERT INTO ''' + table_name + ''' (date, json)
-    #                 VALUES (?, ?)''', rows_to_insert)
-    sql = '''INSERT INTO {} (date, json) VALUES (?, ?)
-            ON CONFLICT(date) DO NOTHING'''.format(table_name)
-
-    # Insert the rows into the table
-    c.executemany(sql, rows_to_insert)
-    conn.commit()  # Commit the changes for this row
     ii+=1
+    time.sleep(random.random()*3)
 
 conn.close()
-print(str(ii) + ' saved to db')
+print(str(ii) + ' days saved to db')
  
