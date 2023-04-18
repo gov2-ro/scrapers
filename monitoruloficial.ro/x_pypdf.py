@@ -5,7 +5,8 @@ from tqdm import tqdm
 from pypdf import PdfReader
 
 output_dir = '../data/mo/text/PyPDF2/'
-source = '../data/mo/pdfs/Monitorul-Oficial--PI--520Bis--2021.pdf'
+# source = '../data/mo/pdfs/Monitorul-Oficial--PI--520Bis--2021.pdf'
+source = '../data/mo/pdfs/Monitorul-Oficial--PII--75--2021.pdf'
 
 reader = PdfReader(source)
 filename = os.path.splitext(os.path.basename(source))[0]
