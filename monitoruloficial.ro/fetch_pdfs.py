@@ -1,6 +1,7 @@
 import sqlite3, json, requests, sys, os, time, random
 import logging
 from tqdm import tqdm
+
 sys.path.append("../utils/")
 from common import base_headers
 
@@ -25,17 +26,19 @@ rows = c.fetchall()
  
 
 pbar = tqdm(len(rows))
-tqdm.write('zz ' + str(len(rows)))
+nrows = len(rows)
+tqdm.write('zz ' + str(nrows))
 # Iterate over the rows and convert the JSON string to a dictionary
-for row in rows:
+for row in tqdm(rows):
     date, json_str = row
     json_dict = json.loads(json_str)
     # print(f"Date: {date}, JSON dictionary: {json_dict}")
     # breakpoint()
-    ii = jj = 0
-    pbar.update(1)
+    ii = 0
+     
     for sectiuni, parti in json_dict.items():
         for nr, url in parti.items():
+            jj = 0
             # download pdf
             # filename = url[1:]
             filename = os.path.splitext(url[1:])[0]
@@ -62,6 +65,7 @@ for row in rows:
                 logging.error(f'Error saving PDF URL {url_base + url}: {e}')
             time.sleep(random.random()*1.75)
             jj+=1
+            # tqdm.write('   - >  ' + str(ii) + '/' + str(nrows) + ' ' + str(ii+jj) + ' ' + str(jj))
     ii+=1
     
     time.sleep(random.random()*1.75)
