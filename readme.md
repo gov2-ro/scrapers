@@ -1,3 +1,5 @@
 scrapers
 
-- [ ] proiecte legislative cdep
+- [ ] proiecte legislative cdep.ro
+- [ ] monitoruloficial.ro
+- [ ] portal.just.ro
