@@ -6,7 +6,7 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) â
     - [x] PyPDF2 (text)
     - [x] pdf2docx - FAILS?
     - [ ] PyMuPDF
-    - [ ] pdfminer/pdf2txt
+    - [x] pdfminer/pdf2txt
     
 - [ ] updater cron
 

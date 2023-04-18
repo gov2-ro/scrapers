@@ -2,6 +2,7 @@
 /data/*
 *.code-workspace
 */_obsolete
+*/data/*
 _obsolete
 */geckodriver.log
 geckodriver.log
@@ -11,3 +12,4 @@ selenium/geckodriver.log
 !/data/datasette/
 /data/cached-responses/*
 /testbench/
+*/scraping.log
