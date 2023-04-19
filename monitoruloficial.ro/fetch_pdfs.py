@@ -32,6 +32,7 @@ nrows = len(rows)
 tqdm.write('zz ' + str(nrows))
 # Iterate over the rows and convert the JSON string to a dictionary
 all_files = 0
+prev_year = 1000
 for row in tqdm(rows):
     date, json_str = row
     json_dict = json.loads(json_str)
@@ -47,14 +48,23 @@ for row in tqdm(rows):
             year=urlparts[-1]
             if len(year) != 4:
                 tqdm.write('err: ' + str(year))
+            
+            if str(year) != str(prev_year):
+                tqdm.write(" --> " + str(year) + " -")
+                # check if folder exists, cread if not, print.
+                if not os.path.exists(output_folder + str(year) ):
+                    os.makedirs(output_folder + str(year))
+                    tqdm.write("created " + str(year) + " folder")
+
+            prev_year = year
 
             if verbose:
                 tqdm.write('>> ' + url_base + url)
 
             if overwrite is False and os.path.isfile(output_folder + str(year) + '/' + filename + '.pdf'):
                 files_found += 1
-                if verbose:
-                    tqdm.write('skipping ' + filename + '.pdf');
+                # if verbose:
+                tqdm.write('skipping ' + filename + '.pdf');
                 continue #if overwrite = False and file exists, continue
                
             try:
@@ -81,7 +91,7 @@ for row in tqdm(rows):
             # tqdm.write('   - >  ' + str(ii) + '/' + str(nrows) + ' ' + str(ii+jj) + ' ' + str(jj))
     ii+=1
     
-    time.sleep(random.random()*1.75)
+    # time.sleep(random.random()*1.75)
 # Close the database connection
 conn.close()
 tqdm.write('done ' + str(len(rows)) + ' days ' + str(ii) + 'secțiuni' + str(jj) + 'saved pdfs')
