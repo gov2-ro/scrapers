@@ -1,5 +1,7 @@
 scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) → save pdfs →  get text → analyze?.
 
+## Roadmap
+
 - [x] fetch daily părți
 - [x] download pdfs
 - [ ] structured text/html from PDF
@@ -7,8 +9,13 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
     - [x] pdf2docx - FAILS?
     - [ ] PyMuPDF
     - [x] pdfminer/pdf2txt
-    
+   
 - [ ] updater cron
+
+
+## Scripts
 
 - `get_index.py` - gets daily părți for a date range (save to sqlite or/and files)
 - `fetch_pdfs.py` - reads list from sqlite, downloads pdfs
+
+see also [pdf2text](../pdf2text) conversion tests
