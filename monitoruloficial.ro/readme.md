@@ -6,6 +6,11 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
     - [x] fetch daily părți
     - [x] download pdfs
     - [ ] fetch P-III - P-VII (online for 10 days)
+        - [x] fetch individual pages
+        - [ ] fetch jsonp's
+        - [ ] concatenate pdfs
+        - [ ] OCR
+
 - [ ] structured text/html from PDF
     - [ ] PDF → HTML see [pdf2txt.xslx](https://docs.google.com/spreadsheets/d/1APEmulzWa7PGgDg_mc-7rnY_vbxX2Q6Y) 
     - [ ] split into chapters → initial UI 
@@ -20,7 +25,7 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
 
 - `get_index.py` - gets daily părți for a date range (save to sqlite or/and files)
 - `fetch_pdfs.py` - reads list from sqlite, downloads pdfs
-- `fetch-p3-5.py` - gets P.III - P.VII (ephemeral, online for 10 days)
+- `fetch_pdfs_p3+` - gets P.III - P.VII (ephemeral, online for 10 days)
 
 see also [pdf2text](../pdf2text) conversion tests
 
