@@ -5,6 +5,7 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
 - [x] local cache
     - [x] fetch daily părți
     - [x] download pdfs
+    - [ ] fetch P-III - P-VII (online for 10 days)
 - [ ] structured text/html from PDF
     - [ ] PDF → HTML see [pdf2txt.xslx](https://docs.google.com/spreadsheets/d/1APEmulzWa7PGgDg_mc-7rnY_vbxX2Q6Y) 
     - [ ] split into chapters → initial UI 
@@ -19,6 +20,7 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
 
 - `get_index.py` - gets daily părți for a date range (save to sqlite or/and files)
 - `fetch_pdfs.py` - reads list from sqlite, downloads pdfs
+- `fetch-p3-5.py` - gets P.III - P.VII (ephemeral, online for 10 days)
 
 see also [pdf2text](../pdf2text) conversion tests
 
@@ -30,6 +32,6 @@ see also [pdf2text](../pdf2text) conversion tests
 | proiect | obs | price |
 |-----|-----|-----|
 | [monitoruljuridic.ro](http://www.monitoruljuridic.ro/) | no formatting | gratis |
-| [lege-online.ro](https://www.lege-online.ro/monitoare-oficiale) | 2 |  |
+| [lege-online.ro](https://www.lege-online.ro/monitoare-oficiale) |  |  |
 | [lege5.ro](https://lege5.ro/App/MonitorOficial) | formatted, linked | paid |
 | [idrept.ro](https://lege5.ro/App/MonitorOficial) | formatted, linked | paid |

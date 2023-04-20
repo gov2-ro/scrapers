@@ -27,18 +27,18 @@ conn = sqlite3.connect(db_filename)
 c = conn.cursor()
 c.execute('SELECT * FROM ' + table_name + ' ORDER BY date DESC')
 rows = c.fetchall()
-
  
 nrows = len(rows)
 tqdm.write(' > ' + str(nrows) + ' days in the db')
-# Iterate over the rows and convert the JSON string to a dictionary
 all_files = 0
+files_found = new_files_found = 0
 prev_year = 1000
+
 for row in tqdm(rows, desc='days'):
+# Iterate over the rows and convert the JSON string to a dictionary
     date, json_str = row
     json_dict = json.loads(json_str)
     ii = 0
-    files_found = 0
     for sectiuni, parti in tqdm(json_dict.items(), desc='părți', leave=False):
         for nr, url in tqdm(parti.items(), desc='pdfs', leave=False):
             jj = 0
@@ -51,10 +51,11 @@ for row in tqdm(rows, desc='days'):
                 tqdm.write('err: ' + str(year))
             
             if str(year) != str(prev_year):
-                tqdm.write(" --> " + str(year) + " -")
+                tqdm.write(f" -- current year: " + str(year) + " -", end="\r")
                 # check if folder exists, cread if not, print.
                 if not os.path.exists(output_folder + str(year) ):
                     os.makedirs(output_folder + str(year))
+                    # tqdm.write(f"created " + str(year) + " folder", end="\r")
                     tqdm.write("created " + str(year) + " folder")
 
             prev_year = year
@@ -67,6 +68,7 @@ for row in tqdm(rows, desc='days'):
                 if verbose:
                     tqdm.write('skipping ' + filename + '.pdf');
                 continue #if overwrite = False and file exists, continue
+
                
             try:
                 response = requests.get(url_base + url, headers=base_headers('headers2'))
@@ -89,12 +91,14 @@ for row in tqdm(rows, desc='days'):
             if round(all_files/pause_at) == all_files/pause_at:
                 time.sleep(pause)
                 # os.system('say -v ioana "piiua " -r 250')
+                if (new_files_found != files_found): 
+                    tqdm.write("Files found: " + str(files_found))
+                    new_files_found = files_found
             # tqdm.write('   - >  ' + str(ii) + '/' + str(nrows) + ' ' + str(ii+jj) + ' ' + str(jj))
     ii+=1
     
     # time.sleep(random.random()*1.75)
-# Close the database connection
+
 conn.close()
 tqdm.write(' -- done ' + str(len(rows)) + ' days ' + str(ii) + ' secțiuni ' + str(all_files) + ' saved pdfs')
-
 os.system('say -v ioana "în sfârșit, am gătat ' +  str(all_files) + ' fișiere " -r 250')

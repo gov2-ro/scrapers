@@ -2,7 +2,7 @@ import requests, json, sys, os, time, sqlite3,random, argparse, logging
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 sys.path.append("../utils/")
-from common import generate_dates
+from common import generate_dates, base_headers
 
 
 """ 
@@ -51,24 +51,6 @@ if args.overwrite:
 
 zidates = generate_dates(start_date, end_date, '%Y-%m-%d')
 pbar = tqdm(len(zidates))
-headers = {
-    'authority': 'monitoruloficial.ro',
-    'accept': '*/*',
-    'accept-language': 'en-GB,en;q=0.5',
-    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'cookie': 'PHPSESSID=f2a8g1t1f8oldgi3pntsopgpjk',
-    'origin': 'https://monitoruloficial.ro',
-    'referer': 'https://monitoruloficial.ro/e-monitor/',
-    'sec-ch-ua': '"Chromium";v="112", "Brave";v="112", "Not:A-Brand";v="99"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"macOS"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
-    'sec-gpc': '1',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
-    'x-requested-with': 'XMLHttpRequest'
-}
 ii = 0
 
 conn = sqlite3.connect(db_filename)
@@ -99,7 +81,7 @@ for oneday in tqdm(zidates):
     data = {'today': oneday, 'rand': random.random() }
 
     try:
-        response = requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=base_headers('headers1'), data=data)
     except Exception as e:
         logger.error('eRrx: '+ str(e))
     soup = BeautifulSoup(response.content, 'html.parser')
