@@ -30,11 +30,10 @@ end_date       =  '2023-04-18'
 save_to_cache  =  True
 save_to_db     =  True
 overwrite      =  False           # if True, don't check if date exists
-pause_at       =  30              # days
-pause          =  10              # seconds
+pause_at       =  31              # days
+pause          =  7              # seconds
 verbose        =  False
 url            =  'https://monitoruloficial.ro/ramo_customs/emonitor/get_mo.php'
-
 
 # - - - - - - - - - - - - - - - - - - - - -  
 
@@ -85,7 +84,6 @@ if overwrite:
 else:
     tqdm.write(' -- skipping previously saved dates')
 
-
 if overwrite is False:
     # exclude zidates that are already in the database
     c.execute("SELECT date from dates_lists WHERE date BETWEEN '" + start_date + "' AND '" + end_date + "';")
@@ -130,10 +128,10 @@ for oneday in tqdm(zidates):
 
     ii+=1
     # pbar.update(1)
-    time.sleep(random.random()*3)
+    time.sleep(random.random()*2)
     if round(ii/pause_at) == ii/pause_at:
         time.sleep(pause)
-        os.system('say -v ioana "piiua " -r 250')
+        # os.system('say -v ioana "piiua " -r 250')
 
 conn.close()
 tqdm.write(str(ii) + ' days saved to db')

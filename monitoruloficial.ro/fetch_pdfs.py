@@ -9,6 +9,7 @@ from common import base_headers
 read each json
 download pdfs
 check if exists, mode overwrite, mode update
+# TODO: write log to db? checksum?
  """
 
 db_filename     =   '../../data/mo/mo.db'
@@ -24,22 +25,22 @@ url_base        =   'https://monitoruloficial.ro'
 
 conn = sqlite3.connect(db_filename)
 c = conn.cursor()
-c.execute('SELECT * FROM ' + table_name)
+c.execute('SELECT * FROM ' + table_name + ' ORDER BY date DESC')
 rows = c.fetchall()
 
-pbar = tqdm(len(rows))
+ 
 nrows = len(rows)
-tqdm.write('zz ' + str(nrows))
+tqdm.write(' > ' + str(nrows) + ' days in the db')
 # Iterate over the rows and convert the JSON string to a dictionary
 all_files = 0
 prev_year = 1000
-for row in tqdm(rows):
+for row in tqdm(rows, desc='days'):
     date, json_str = row
     json_dict = json.loads(json_str)
     ii = 0
     files_found = 0
-    for sectiuni, parti in json_dict.items():
-        for nr, url in parti.items():
+    for sectiuni, parti in tqdm(json_dict.items(), desc='părți', leave=False):
+        for nr, url in tqdm(parti.items(), desc='pdfs', leave=False):
             jj = 0
             # download pdf
             filename = os.path.splitext(url[1:])[0]
@@ -63,8 +64,8 @@ for row in tqdm(rows):
 
             if overwrite is False and os.path.isfile(output_folder + str(year) + '/' + filename + '.pdf'):
                 files_found += 1
-                # if verbose:
-                tqdm.write('skipping ' + filename + '.pdf');
+                if verbose:
+                    tqdm.write('skipping ' + filename + '.pdf');
                 continue #if overwrite = False and file exists, continue
                
             try:
@@ -87,13 +88,13 @@ for row in tqdm(rows):
             jj+=1
             if round(all_files/pause_at) == all_files/pause_at:
                 time.sleep(pause)
-                os.system('say -v ioana "piiua " -r 250')
+                # os.system('say -v ioana "piiua " -r 250')
             # tqdm.write('   - >  ' + str(ii) + '/' + str(nrows) + ' ' + str(ii+jj) + ' ' + str(jj))
     ii+=1
     
     # time.sleep(random.random()*1.75)
 # Close the database connection
 conn.close()
-tqdm.write('done ' + str(len(rows)) + ' days ' + str(ii) + 'secțiuni' + str(jj) + 'saved pdfs')
+tqdm.write(' -- done ' + str(len(rows)) + ' days ' + str(ii) + ' secțiuni ' + str(all_files) + ' saved pdfs')
 
 os.system('say -v ioana "în sfârșit, am gătat ' +  str(all_files) + ' fișiere " -r 250')
