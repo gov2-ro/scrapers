@@ -20,7 +20,7 @@ overwrite       =   False   # if false check if file exists, don't fetch again
 pause_at        =   30      # days
 pause           =   10      # seconds
 url_base        =   'https://monitoruloficial.ro'
-
+shy_parts       =   ["III-a", "IV-a", "VI-a", "VII-a"] # ascunse după10 zile
 #  - - - - - - - - - - - - - - - - - - - - -  
 
 conn = sqlite3.connect(db_filename)
@@ -39,7 +39,11 @@ for row in tqdm(rows, desc='days'):
     date, json_str = row
     json_dict = json.loads(json_str)
     ii = 0
-    for sectiuni, parti in tqdm(json_dict.items(), desc='părți', leave=False):
+    for sectiune, parti in tqdm(json_dict.items(), desc='părți', leave=False):
+        # check if parte > 3, don't bother.
+        if any(part in sectiune for part in shy_parts):
+            continue
+
         for nr, url in tqdm(parti.items(), desc='pdfs', leave=False):
             jj = 0
             # download pdf
