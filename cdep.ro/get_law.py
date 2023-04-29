@@ -9,12 +9,14 @@ from datetime import datetime
 """ 
 ## TODOs
 
-- [ ] consultanți
-- [ ] inițiatori
+- [x] consultanți
+- [x] inițiatori
 - [ ] caseta electronica a deputatului
 - [ ] Derularea procedurii legislative
 - [ ] create function
 - [ ] check for updates - if no new data skip, if new data, store new version
+
+# TODO: get downloads inside derulare procedura
 
  """
 
@@ -72,6 +74,48 @@ def table_consultanti(inner_table):
             json_data[subkey] = hrefz
     return(json_data)
 
+def table_derulare_procedura(inner_table):
+    # first 5 rows to be ignored
+    # starts at first <tr valign="top"><td align="center" bgcolor="#fff0d8">
+    # only  <tr valign="top"> are relevant
+    # detect date on the left, concatenate strings on the right (see <td colspan="2"> - can have subtable ), until next date or end
+    # <dd><table> has downloads or html links 
+    
+
+    json_data = {}
+    # rows = inner_table.find_all('tr')
+    # tbody = inner_table.find('tbody')
+    # breakpoint()
+    rows = inner_table.children #so only immediate rows
+    for row in rows:
+        if row.name != 'tr':
+            continue
+        if (not row.has_attr("valign")) or row["valign"] != "top":
+            continue
+        # subcells = row.find_all('td')
+        subcells = row.children #only the immediate tds
+        lx = 0
+        for td in subcells:
+ 
+            if td.name != 'td':
+                continue
+            
+            if lx == 0:
+                subkey = td.text.strip()
+                if subkey != '':
+                    datekey = subkey
+            if lx == 2:
+                # TODO: get html not td.text
+                # if it has dd , table etc
+             
+                if datekey not in json_data:
+                    json_data[datekey] = td.text
+                else:                    
+                    json_data[datekey] +=  td.text + " "
+            lx += 1
+ 
+    return json_data
+
 def hrefs2(input_soup):
     xjson_data = {}
     for a_tag in input_soup.find_all('a'):
@@ -88,6 +132,12 @@ soup = BeautifulSoup(response.content, 'html.parser')
 # scrape the title and description
 title = soup.select_one('div.boxTitle h1').text
 descriere = soup.select_one('div.detalii-initiativa h4').text
+vezi_operatiuni = soup.find('a', string='vezi si operatiile de la Senat')
+if vezi_operatiuni is not None:
+    vezi_operatiuni_url = vezi_operatiuni['href']
+else:
+    vezi_operatiuni_url = ''
+
 print(title + ' --> ' + descriere)
 # scrape the table data
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
@@ -156,9 +206,14 @@ for row in detalii_initiativa_rows:
                 data['consultanti'] = json.dumps(table_consultanti(inner_table), ensure_ascii=False) 
             else:
                 data['consultanti'] = value
-        
+
+# Derularea procedurii legislative
+derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
+# data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
+data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
+ 
+# TODO: check if exists
 # write to db
-# set up the SQLite database connection
 
 conn = sqlite3.connect(db_filename)
 c = conn.cursor()
@@ -166,13 +221,17 @@ c.execute('''CREATE TABLE IF NOT EXISTS laws
              (title text, descriere text, nr_inregistrare text, cdep text, senat text,
               guvern text, proc_leg text, camera_decizionala text, termen_adoptare text,
               tip_initiativa text, caracter text, p_urgenta text, stadiu text,
-              initiator text, initiatori text, consultanti text, caseta_lista text, fetch_date text)''')
+              initiator text, initiatori text, consultanti text, derulare_procedura, caseta_lista text, vezi_senat, fetch_date text
+              , PRIMARY KEY("nr_inregistrare")
+              )''')
+# FIXME: if nr inregistrare primay key can't overwrite 
  
 #  TODO: check if exists, later add new version only if different data
-qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu, consultanti, initiatori, fetch_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu, consultanti, initiatori, derulare_procedura, vezi_senat, fetch_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+ 
 # breakpoint()
 try:
-    c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], datetime.today().strftime('%y%m%d')))
+    c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], data['derulare_procedura'], vezi_operatiuni_url, datetime.today().strftime('%y%m%d')))
 except Exception as e:
     logger.error('eRrx: '+ str(e) + "\n\r" + qxx )
     breakpoint()
