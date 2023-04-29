@@ -1,4 +1,5 @@
 import requests, json, sys, os, time, sqlite3,random, argparse, logging
+from datetime import datetime
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 sys.path.append("../utils/")
@@ -41,6 +42,7 @@ parser = argparse.ArgumentParser(description='looks for dates and return lists o
 parser.add_argument('-start', '--start_date', help='start date')
 parser.add_argument('-end', '--end_date', help='end date')
 parser.add_argument('--overwrite', help='True / False - if False, check if date exists, if it does, don\'t overwrite')
+parser.add_argument('-m', '--mode', help='mode: l-<x> - last <x> days, all - from the beginning to today ')
 args = parser.parse_args()
 if args.start_date:
     start_date = args.start_date
@@ -48,6 +50,12 @@ if args.end_date:
     end_date = args.end_date
 if args.overwrite:
     overwrite = args.overwrite
+if args.mode:
+    mode = args.mode
+    if mode == 'all':
+        end_date = datetime.today().strftime('%Y-%m-%d')
+
+
 
 zidates = generate_dates(start_date, end_date, '%Y-%m-%d')
 pbar = tqdm(len(zidates))
