@@ -4,9 +4,21 @@ import sqlite3
 import json
 from urllib.parse import parse_qs, urlparse
 import logging
+from datetime import datetime
 
+""" 
+## TODOs
 
-db_filename = '../data/cdep/cdep.db'
+- [ ] consultanți
+- [ ] inițiatori
+- [ ] caseta electronica a deputatului
+- [ ] Derularea procedurii legislative
+- [ ] create function
+- [ ] check for updates - if no new data skip, if new data, store new version
+
+ """
+
+db_filename = '../../data/cdep/cdep.db'
 table = 'laws'
 
 logging.basicConfig(level=logging.INFO)
@@ -28,26 +40,26 @@ def table_initiatori(inner_table):
     json_data = {}
     rows = inner_table.find_all('tr')
     for row in rows:
-        print('-row--')
+        # print('-row--')
         subcells = row.find_all('td')
         if len(subcells) >= 2:
             # breakpoint()
-            subkey = subcells[0].text
-            print(subkey)
+            subkey = subcells[0].text.replace(':','')
+            # print(subkey)
             # subvalue = subcells[1].text.strip()
             zilist = subcells[1]
             ll = hrefs_json1(zilist)
             try:               
-                json_data[subkey] = ll 
+                json_data[subkey] = json.loads(ll) 
             except Exception as e:
                 logger.error('err: '+ str(e))
                 breakpoint()
+    return(json_data)
 
 def table_consultanti(inner_table):
     json_data = {}
     rows = inner_table.find_all('tr')
     for row in rows:
-        print('-row--')
         subcells = row.find_all('td')
         if len(subcells) >= 2:
             # 2nd td has value name
@@ -101,7 +113,7 @@ for row in detalii_initiativa_rows:
         value = tds[1].text.strip()
 
         # detect the variable name based on the substring found in the first column
-        if 'nregistrare' in key:
+        if 'B.P.I' in key:
             data['nr_inregistrare'] = value
         elif 'Camera Deputatilor' in key:
             data['cdep'] = value
@@ -123,23 +135,25 @@ for row in detalii_initiativa_rows:
             data['p_urgenta'] = value
         elif 'Stadiu' in key:
             data['stadiu'] = value
+  
         elif 'Initiator' in key:
             # check if there is an inner table in the second td
             # TODO: see if text outside table
             inner_table = tds[1].find('table')
             if inner_table:
                 # data['initiatori'] = json.dumps(json_data)
-                data['initiatori'] = table_initiatori(inner_table)
+                data['initiatori'] = json.dumps(table_initiatori(inner_table), ensure_ascii=False)
             else:
                 data['initiator'] = value
-            # 
     
+
         elif 'Consultati' in key:
             # check if there is an inner table in the second td
+            # TODO: also get `caseta electronica a deputatului`
             inner_table = tds[1].find('table')
             if inner_table:
                 # data['initiatori'] = json.dumps(json_data)
-                data['consultanti'] = table_consultanti(inner_table)
+                data['consultanti'] = json.dumps(table_consultanti(inner_table), ensure_ascii=False) 
             else:
                 data['consultanti'] = value
         
@@ -152,19 +166,17 @@ c.execute('''CREATE TABLE IF NOT EXISTS laws
              (title text, descriere text, nr_inregistrare text, cdep text, senat text,
               guvern text, proc_leg text, camera_decizionala text, termen_adoptare text,
               tip_initiativa text, caracter text, p_urgenta text, stadiu text,
-              initiator text, initiatori text, consultanti text, caseta_lista text)''')
-
-# for xrow in data:
+              initiator text, initiatori text, consultanti text, caseta_lista text, fetch_date text)''')
+ 
+#  TODO: check if exists, later add new version only if different data
+qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu, consultanti, initiatori, fetch_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+# breakpoint()
 try:
-    # xx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare,tip_initiativa, caracter, p_urgenta, stadiu,initiator, initiatori, consultanti) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (xrow['nr_inregistrare'], xrow['cdep'], xrow['senat'], xrow['guvern'], xrow['proc_leg'], xrow['camera_decizionala'], xrow['termen_adoptare'], xrow['tip_initiativa'], xrow['caracter'], xrow['p_urgenta'], xrow['stadiu'], xrow['initiatori'], xrow['initiatori'], xrow['initiator'], xrow['initiatori'], xrow['consultanti'], xrow['consultanti'])
-    xx = "INSERT INTO " + table + " (nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu) VALUES (\"" + data['nr_inregistrare']+"\", \""+data['cdep']+"\", \""+data['senat']+"\", \""+data['guvern']+"\", \""+data['proc_leg']+"\", \""+data['camera_decizionala']+"\", \""+data['termen_adoptare']+"\", \""+data['tip_initiativa']+"\", \""+data['caracter']+"\", \""+data['p_urgenta']+"\", \""+data['stadiu'] + "\")"
-
-
-    c.execute(xx)
+    c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], datetime.today().strftime('%y%m%d')))
 except Exception as e:
-    logger.error('eRrx: '+ str(e))
+    logger.error('eRrx: '+ str(e) + "\n\r" + qxx )
     breakpoint()
-
+ 
 conn.commit()
 conn.close()
 
