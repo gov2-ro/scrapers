@@ -5,6 +5,8 @@ import json
 from urllib.parse import parse_qs, urlparse
 import logging
 from datetime import datetime
+# import xmltojson
+import html_to_json
 
 """ 
 ## TODOs
@@ -54,7 +56,7 @@ def table_initiatori(inner_table):
             try:               
                 json_data[subkey] = json.loads(ll) 
             except Exception as e:
-                logger.error('err: '+ str(e))
+                logger.error('err [57]: '+ str(e))
                 breakpoint()
     return(json_data)
 
@@ -81,7 +83,6 @@ def table_derulare_procedura(inner_table):
     # detect date on the left, concatenate strings on the right (see <td colspan="2"> - can have subtable ), until next date or end
     # <dd><table> has downloads or html links 
     
-
     json_data = {}
     # rows = inner_table.find_all('tr')
     # tbody = inner_table.find('tbody')
@@ -105,13 +106,21 @@ def table_derulare_procedura(inner_table):
                 if subkey != '':
                     datekey = subkey
             if lx == 2:
-                # TODO: get html not td.text
+                # TODO: get html not td.text, check if dd also, if inregistrare video, get links
                 # if it has dd , table etc
-             
+
                 if datekey not in json_data:
-                    json_data[datekey] = td.text
+                    try:
+                        json_data[datekey] = [html_to_json.convert(str(td))]
+                    except Exception as e:
+                        logger.error('eRrx[116] : '+ str(e)  )
+                        breakpoint()
                 else:                    
-                    json_data[datekey] +=  td.text + " "
+                    try:
+                        json_data[datekey].append(html_to_json.convert(str(td)))
+                    except Exception as e:
+                        logger.error('eRrx[122] : '+ str(e)  )
+                        breakpoint()
             lx += 1
  
     return json_data
@@ -121,6 +130,15 @@ def hrefs2(input_soup):
     for a_tag in input_soup.find_all('a'):
         hrefz = a_tag['href']
 
+def cleanTables(input_soup):
+    filtered_html = ''
+    for tag in soup.recursiveChildGenerator():
+        # if tag.name == 'a' or tag.name == 'img':
+        if tag.name == 'a':
+            filtered_html += str(tag)
+        elif not tag.name:
+            filtered_html += str(tag.string)
+    return filtered_html
 
 # set the URL to scrape
 url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
@@ -233,7 +251,7 @@ qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat
 try:
     c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], data['derulare_procedura'], vezi_operatiuni_url, datetime.today().strftime('%y%m%d')))
 except Exception as e:
-    logger.error('eRrx: '+ str(e) + "\n\r" + qxx )
+    logger.error('eRrx[236] : '+ str(e) + "\n\r" + qxx )
     breakpoint()
  
 conn.commit()
