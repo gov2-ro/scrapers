@@ -1,12 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlite3
+import sys
 import json
 from urllib.parse import parse_qs, urlparse
 import logging
 from datetime import datetime
 # import xmltojson
-import html_to_json
+# import html_to_json
+# import html2json
+# from html2json import collect
+ 
+
+
 
 """ 
 ## TODOs
@@ -108,21 +114,13 @@ def table_derulare_procedura(inner_table):
             if lx == 2:
                 # TODO: get html not td.text, check if dd also, if inregistrare video, get links
                 # if it has dd , table etc
-
+            
                 if datekey not in json_data:
-                    try:
-                        json_data[datekey] = [html_to_json.convert(str(td))]
-                    except Exception as e:
-                        logger.error('eRrx[116] : '+ str(e)  )
-                        breakpoint()
+                    json_data[datekey] = [doTables(td)]
                 else:                    
-                    try:
-                        json_data[datekey].append(html_to_json.convert(str(td)))
-                    except Exception as e:
-                        logger.error('eRrx[122] : '+ str(e)  )
-                        breakpoint()
+                    json_data[datekey].append(doTables(td))
+            
             lx += 1
- 
     return json_data
 
 def hrefs2(input_soup):
@@ -130,15 +128,34 @@ def hrefs2(input_soup):
     for a_tag in input_soup.find_all('a'):
         hrefz = a_tag['href']
 
-def cleanTables(input_soup):
+def doTables(input_soup):
     filtered_html = ''
-    for tag in soup.recursiveChildGenerator():
+    for tag in input_soup.recursiveChildGenerator():
         # if tag.name == 'a' or tag.name == 'img':
         if tag.name == 'a':
-            filtered_html += str(tag)
+            filtered_html += tag.decode_contents().replace('\n', '')
         elif not tag.name:
-            filtered_html += str(tag.string)
+            filtered_html += tag.replace('\n', '')
     return filtered_html
+
+
+def html_to_json(html_string):
+    soup = BeautifulSoup(html_string, 'html.parser')
+    json_data = tag_to_dict(soup)
+    return json.dumps(json_data, indent=2, ensure_ascii=False)
+
+def tag_to_dict(tag):
+    if isinstance(tag, str):
+        return tag.strip()
+
+    tag_dict = {
+        'name': tag.name,
+        'attrs': dict(tag.attrs),
+    }
+    if tag.contents:
+        tag_dict['children'] = [tag_to_dict(child) for child in tag.contents if str(child).strip()]
+    return tag_dict
+
 
 # set the URL to scrape
 url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
@@ -156,7 +173,7 @@ if vezi_operatiuni is not None:
 else:
     vezi_operatiuni_url = ''
 
-print(title + ' --> ' + descriere)
+# print(title + ' --> ' + descriere)
 # scrape the table data
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
 data = {}
@@ -229,7 +246,12 @@ for row in detalii_initiativa_rows:
 derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
 # data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
 data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
- 
+
+print(data['derulare_procedura'])
+
+sys.exit()
+
+
 # TODO: check if exists
 # write to db
 
