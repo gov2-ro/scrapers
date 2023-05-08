@@ -32,7 +32,7 @@ table = 'laws'
 ignore_keys = ['width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign', 'height', 'colspan', 'align', 'nowrap', 'bgcolor']
 inputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.html'
 outputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.json'
-tmpfile ='../../data/cdep/sample/tmp.html'
+
 # inputfile ='law.html'
 
 logging.basicConfig(level=logging.INFO)
@@ -164,7 +164,6 @@ else:
 
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
 
-
 data = {}
 data ={
     "nr_inregistrare":"",
@@ -238,15 +237,13 @@ derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=
 # data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
 data['derulare_procedura'] = json.dumps(html2obj(derulare_procedura, ignore_keys))
 
-writefile(tmpfile,str(derulare_procedura))
-
-meat2 = readfile(tmpfile) 
-soup2 = BeautifulSoup(meat2, 'html.parser')
+soup2 = BeautifulSoup(str(derulare_procedura), 'html.parser')
 derulare_procedura2 = json.dumps(html2obj(str(soup2), ignore_keys))
-
+data['derulare_procedura'] = derulare_procedura2
 writefile(outputfile,data['derulare_procedura'])
 
 # TODO: read json and convert to lighter semantic json to store to SQLite
+# or just download hrefs if .doc docx files //and store the other links? stenograma etc?
 
 sys.exit()
 
