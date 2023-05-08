@@ -30,10 +30,13 @@ from json_from_html import html2obj
 db_filename = '../../data/cdep/cdep.db'
 table = 'laws'
 ignore_keys = ['width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign', 'height', 'colspan', 'align', 'nowrap', 'bgcolor']
+inputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.html'
+outputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.json'
+tmpfile ='../../data/cdep/sample/tmp.html'
+# inputfile ='law.html'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 def hrefs_json1(input_soup):
     xjson_data = {}
@@ -138,15 +141,15 @@ def doTables(input_soup):
             filtered_html += tag.replace('\n', '')
     return filtered_html
 
-
-
-# set the URL to scrape
-url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
-
-# scrape the webpage using requests and BeautifulSoup
+""" url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
 response = requests.get(url)
-soup = BeautifulSoup(response.content, 'html.parser')
+meat = response.content #FIXME: do function
+ """
 
+meat = readfile(inputfile) #TODO: hardcoded, to remove
+ 
+
+soup = BeautifulSoup(meat, 'html.parser')
 # scrape the title and description
 title = soup.select_one('div.boxTitle h1').text
 descriere = soup.select_one('div.detalii-initiativa h4').text
@@ -158,7 +161,10 @@ else:
 
 # print(title + ' --> ' + descriere)
 # scrape the table data
+
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
+
+
 data = {}
 data ={
     "nr_inregistrare":"",
@@ -227,12 +233,20 @@ for row in detalii_initiativa_rows:
 
 # Derularea procedurii legislative
 derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
+
 # data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
 # data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
 data['derulare_procedura'] = json.dumps(html2obj(derulare_procedura, ignore_keys))
 
+writefile(tmpfile,str(derulare_procedura))
 
-print(data['derulare_procedura'])
+meat2 = readfile(tmpfile) 
+soup2 = BeautifulSoup(meat2, 'html.parser')
+derulare_procedura2 = json.dumps(html2obj(str(soup2), ignore_keys))
+
+writefile(outputfile,data['derulare_procedura'])
+
+# TODO: read json and convert to lighter semantic json to store to SQLite
 
 sys.exit()
 

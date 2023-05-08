@@ -12,12 +12,12 @@ def html_to_json_obj(html_string):
         result = {
             'tag': element.tag,
             'attrs': dict(element.attrib),
-            'children': []
+            'kids': []
         }
 
         # add the children of the element
         for child in element.iterchildren():
-            result['children'].append(element_to_dict(child))
+            result['kids'].append(element_to_dict(child))
 
         return result
 
@@ -59,8 +59,31 @@ def remove_keys(json_obj, keys_to_remove):
                 remove_keys(item, keys_to_remove)
     return json_obj
 
+def node_to_dict(node):
+    if node.name is None:
+        return {"tag": "_self", "text": node.strip()}
+    else:
+        node_dict = {"tag": node.name.lower()}
+        if node.attrs:
+            node_dict["attrs"] = node.attrs
+        children = {}
+        for i, child_node in enumerate(node.contents):
+            if child_node.name or (child_node.strip() != ''):
+                child_node_dict = node_to_dict(child_node)
+                if child_node_dict:
+                    children[str(i)] = child_node_dict
+        if children:
+            node_dict["children"] = children
+        return node_dict
+
+
+def html_to_json_obzx(html_str):
+    soup = BeautifulSoup(html_str, 'html.parser')
+    return {str(i): node_to_dict(node) for i, node in enumerate(soup.contents)}
+
+
 def html2obj(inputsoup, ignore_keys):
-    zijson = html_to_json_obj(str(inputsoup))
+    zijson = html_to_json_obzx(str(inputsoup))
     zijson = remove_keys(zijson, ignore_keys)
     zijson = remove_empty_elements(zijson)
     return zijson
