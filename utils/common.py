@@ -58,5 +58,20 @@ def base_headers(which='headers1'):
   else:
      return zeheaders['headers1']
 
+def readfile(path):
+    encodings = ['utf-8', 'ISO-8859-1', 'cp1252']
+
+    for encoding in encodings:
+        try:
+            with open(path, 'r', encoding=encoding) as file:
+                text = file.read()
+                break
+        except UnicodeDecodeError:
+            continue
+    return text
+
+def writefile(path, content):
+    with open(path, 'w') as f:
+        f.write(content)
 
  

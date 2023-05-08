@@ -1,11 +1,10 @@
-import requests
+import requests, sqlite3, sys, json, logging
 from bs4 import BeautifulSoup
-import sqlite3
-import sys
-import json
 from urllib.parse import parse_qs, urlparse
-import logging
 from datetime import datetime
+sys.path.append("../utils/")
+from common import readfile, writefile
+from json_from_html import html2obj
 # import xmltojson
 # import html_to_json
 # import html2json
@@ -30,6 +29,7 @@ from datetime import datetime
 
 db_filename = '../../data/cdep/cdep.db'
 table = 'laws'
+ignore_keys = ['width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign', 'height', 'colspan', 'align', 'nowrap', 'bgcolor']
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -139,23 +139,6 @@ def doTables(input_soup):
     return filtered_html
 
 
-def html_to_json(html_string):
-    soup = BeautifulSoup(html_string, 'html.parser')
-    json_data = tag_to_dict(soup)
-    return json.dumps(json_data, indent=2, ensure_ascii=False)
-
-def tag_to_dict(tag):
-    if isinstance(tag, str):
-        return tag.strip()
-
-    tag_dict = {
-        'name': tag.name,
-        'attrs': dict(tag.attrs),
-    }
-    if tag.contents:
-        tag_dict['children'] = [tag_to_dict(child) for child in tag.contents if str(child).strip()]
-    return tag_dict
-
 
 # set the URL to scrape
 url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
@@ -245,7 +228,9 @@ for row in detalii_initiativa_rows:
 # Derularea procedurii legislative
 derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
 # data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
-data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
+# data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
+data['derulare_procedura'] = json.dumps(html2obj(derulare_procedura, ignore_keys))
+
 
 print(data['derulare_procedura'])
 
