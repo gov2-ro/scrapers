@@ -112,10 +112,6 @@ def table_derulare_procedura(inner_table):
             if lx == 2:
                 # TODO: get html not td.text
                 # if it has dd , table etc
-                """ if datekey not in json_data:
-                    json_data[datekey] = [doTables(td)]
-                else:                    
-                    json_data[datekey].append(doTables(td)) """
 
                 if datekey not in json_data:
                     json_data[datekey] = []
@@ -123,8 +119,28 @@ def table_derulare_procedura(inner_table):
                 else:                    
                     json_data[datekey].append(html2obj(td, ignore_keys))
             lx += 1
-    # xrint(json_data)
     return json_data
+
+def derulare_proc(td_soup):
+    # break into pieces
+    obj = {}
+    ii = 0
+    for node in td_soup.contents:
+        ii +=1
+        if node.name is None:
+            # print(node)  # Text-only node
+            # obj[ii]=node.text
+            # obj[ii]=str(node)
+            obj[ii]=node #is already str?
+        else:
+            # Tag node 
+            # TODO: ook for:
+            #   dd > table td  a (check if a doc or pdf and if siblings, get name from adjacent td - which can be text or link)
+            #   div#obs - can have text and inner links
+  
+
+
+            print(str(node))  
 
 def hrefs2(input_soup):
     xjson_data = {}

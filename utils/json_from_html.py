@@ -60,8 +60,12 @@ def remove_keys(json_obj, keys_to_remove):
     return json_obj
 
 def node_to_dict(node):
+    rr = {}
     if node.name is None:
-        return {"tag": "_self", "text": node.strip()}
+        rr['tag'] = "_self"
+        if node.strip():
+            rr['text']= node.strip()
+        return rr 
     else:
         node_dict = {"tag": node.name.lower()}
         if node.attrs:
@@ -76,6 +80,7 @@ def node_to_dict(node):
             node_dict["children"] = children
         return node_dict
 
+
 def html_to_json_obzx(html_str):
     soup = BeautifulSoup(html_str, 'html.parser')
     return {str(i): node_to_dict(node) for i, node in enumerate(soup.contents)}
@@ -86,3 +91,11 @@ def html2obj(inputsoup, ignore_keys):
     zijson = remove_empty_elements(zijson)
     return zijson
 
+""" 
+# test 
+
+htmlstr = '''
+ xx <b>asa s</b> <ul><li>ss1</li><li>ss1 <em><b>rrs ss</b></em> lala  </li></ul> this <u>those</u> that  
+'''
+zz = html_to_json_obzx(htmlstr)
+print(json.dumps(zz, ensure_ascii=False)) """
