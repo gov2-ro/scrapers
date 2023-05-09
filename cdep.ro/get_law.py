@@ -5,12 +5,6 @@ from datetime import datetime
 sys.path.append("../utils/")
 from common import readfile, writefile
 from json_from_html import html2obj
-# import xmltojson
-# import html_to_json
-# import html2json
-# from html2json import collect
- 
-
 
 
 """ 
@@ -29,14 +23,14 @@ from json_from_html import html2obj
 
 db_filename = '../../data/cdep/cdep.db'
 table = 'laws'
+
 ignore_keys = ['width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign', 'height', 'colspan', 'align', 'nowrap', 'bgcolor']
 inputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.html'
 outputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.json'
 
-# inputfile ='law.html'
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def hrefs_json1(input_soup):
     xjson_data = {}
@@ -53,19 +47,19 @@ def table_initiatori(inner_table):
     json_data = {}
     rows = inner_table.find_all('tr')
     for row in rows:
-        # print('-row--')
+        # xrint('-row--')
         subcells = row.find_all('td')
         if len(subcells) >= 2:
             # breakpoint()
             subkey = subcells[0].text.replace(':','')
-            # print(subkey)
+            # xrint(subkey)
             # subvalue = subcells[1].text.strip()
             zilist = subcells[1]
             ll = hrefs_json1(zilist)
             try:               
                 json_data[subkey] = json.loads(ll) 
             except Exception as e:
-                logger.error('err [57]: '+ str(e))
+                logger.error('err: '+ str(e))
                 breakpoint()
     return(json_data)
 
@@ -92,6 +86,7 @@ def table_derulare_procedura(inner_table):
     # detect date on the left, concatenate strings on the right (see <td colspan="2"> - can have subtable ), until next date or end
     # <dd><table> has downloads or html links 
     
+
     json_data = {}
     # rows = inner_table.find_all('tr')
     # tbody = inner_table.find('tbody')
@@ -115,15 +110,20 @@ def table_derulare_procedura(inner_table):
                 if subkey != '':
                     datekey = subkey
             if lx == 2:
-                # TODO: get html not td.text, check if dd also, if inregistrare video, get links
+                # TODO: get html not td.text
                 # if it has dd , table etc
-            
-                if datekey not in json_data:
+                """ if datekey not in json_data:
                     json_data[datekey] = [doTables(td)]
                 else:                    
-                    json_data[datekey].append(doTables(td))
-            
+                    json_data[datekey].append(doTables(td)) """
+
+                if datekey not in json_data:
+                    json_data[datekey] = []
+                    json_data[datekey].append(html2obj(td, ignore_keys))
+                else:                    
+                    json_data[datekey].append(html2obj(td, ignore_keys))
             lx += 1
+    # xrint(json_data)
     return json_data
 
 def hrefs2(input_soup):
@@ -141,15 +141,14 @@ def doTables(input_soup):
             filtered_html += tag.replace('\n', '')
     return filtered_html
 
-""" url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
+
+url = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.proiect?cam=2&idp=10730'
 response = requests.get(url)
-meat = response.content #FIXME: do function
- """
+soup = BeautifulSoup(response.content, 'html.parser')
 
-meat = readfile(inputfile) #TODO: hardcoded, to remove
- 
+# meat = readfile(inputfile) #TODO: hardcoded, to remove
+# soup = BeautifulSoup(meat, 'html.parser')
 
-soup = BeautifulSoup(meat, 'html.parser')
 # scrape the title and description
 title = soup.select_one('div.boxTitle h1').text
 descriere = soup.select_one('div.detalii-initiativa h4').text
@@ -159,11 +158,10 @@ if vezi_operatiuni is not None:
 else:
     vezi_operatiuni_url = ''
 
-# print(title + ' --> ' + descriere)
+# xrint(title + ' --> ' + descriere)
+
 # scrape the table data
-
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
-
 data = {}
 data ={
     "nr_inregistrare":"",
@@ -232,22 +230,11 @@ for row in detalii_initiativa_rows:
 
 # Derularea procedurii legislative
 derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
-
 # data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
-# data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
-data['derulare_procedura'] = json.dumps(html2obj(derulare_procedura, ignore_keys))
+data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
 
-soup2 = BeautifulSoup(str(derulare_procedura), 'html.parser')
-derulare_procedura2 = json.dumps(html2obj(str(soup2), ignore_keys))
-data['derulare_procedura'] = derulare_procedura2
-writefile(outputfile,data['derulare_procedura'])
-
-# TODO: read json and convert to lighter semantic json to store to SQLite
-# or just download hrefs if .doc docx files //and store the other links? stenograma etc?
-
+print(data['derulare_procedura'])
 sys.exit()
-
-
 # TODO: check if exists
 # write to db
 
@@ -269,7 +256,7 @@ qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat
 try:
     c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], data['derulare_procedura'], vezi_operatiuni_url, datetime.today().strftime('%y%m%d')))
 except Exception as e:
-    logger.error('eRrx[236] : '+ str(e) + "\n\r" + qxx )
+    logger.error('eRrx: '+ str(e) + "\n\r" + qxx )
     breakpoint()
  
 conn.commit()

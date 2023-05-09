@@ -76,11 +76,9 @@ def node_to_dict(node):
             node_dict["children"] = children
         return node_dict
 
-
 def html_to_json_obzx(html_str):
     soup = BeautifulSoup(html_str, 'html.parser')
     return {str(i): node_to_dict(node) for i, node in enumerate(soup.contents)}
-
 
 def html2obj(inputsoup, ignore_keys):
     zijson = html_to_json_obzx(str(inputsoup))
