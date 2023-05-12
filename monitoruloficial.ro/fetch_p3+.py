@@ -11,6 +11,7 @@ read each json
 download pdfs
 check if exists, mode overwrite, mode update
 # TODO: write log to db? checksum?
+TODO: split by dates
  """
 
 db_filename     =   '../../data/mo/mo.db'
@@ -25,12 +26,14 @@ shy_parts       =   ["III-a", "IV-a", "VI-a", "VII-a"] # ascunse după10 zile
 url_base        =   'https://monitoruloficial.ro'
 transit_url     =   'https://monitoruloficial.ro/ramo_customs/emonitor/gidf.php' # to get number of pages
 start_date      =   datetime.today() - timedelta(days=10)
-end_date        =   datetime.today().strftime('%Y-%m-%d')
+end_date        =   datetime.today()
+daysago         =   10
 #  - - - - - - - - - - - - - - - - - - - - -  
 
 parser = argparse.ArgumentParser(description='looks for dates and return lists of parti MO')
 parser.add_argument('-start', '--start_date', help='start date')
 parser.add_argument('-end', '--end_date', help='end date')
+parser.add_argument('-days', '--days_ago', help='ho many days back from today')
 parser.add_argument('--overwrite', help='True / False - if False, check if date exists, if it does, don\'t overwrite')
 parser.add_argument('-m', '--mode', help='mode: l-<x> - last <x> days, all - from the beginning to today ')
 args = parser.parse_args()
@@ -40,10 +43,14 @@ if args.end_date:
     end_date = args.end_date
 if args.overwrite:
     overwrite = args.overwrite
+if args.days_ago:
+    daysago = args.days_ago
+    start_date = end_date - timedelta(days=int(daysago))
 if args.mode:
     mode = args.mode
     if mode == 'all':
         end_date = datetime.today().strftime('%Y-%m-%d')
+
 
 # end_date = datetime.today().strftime('%Y-%m-%d')
 
@@ -51,7 +58,7 @@ conn = sqlite3.connect(db_filename)
 c = conn.cursor()
 # c.execute('SELECT * FROM ' + table_name + ' ORDER BY date DESC')
 # c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '2023-04-10' AND '2023-04-12';")
-c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '" + str(start_date) + "' AND '" + end_date + "';") 
+c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '" + str(start_date) + "' AND '" + end_date.strftime('%Y-%m-%d') + "';") 
 rows = c.fetchall()
  
 nrows = len(rows)
@@ -101,7 +108,7 @@ for row in tqdm(rows, desc='days'):
             if overwrite is False and os.path.isfile(output_folder + str(year) + '/' + filename + '.pdf'):
                 files_found += 1
                 if verbose:
-                    tqdm.write('skipping ' + filename + '.pdf');
+                    tqdm.write('skipping ' + date + '/' + filename + '.pdf');
                 continue #if overwrite = False and file exists, continue
 
                
@@ -145,8 +152,13 @@ for row in tqdm(rows, desc='days'):
             folder = gidf_json['f']
             ziurl_jsonp = f"https://monitoruloficial.ro/ramo_customs/emonitor/showmo/services/view.php?doc={gidf_json['d']}&format=jsonp&subfolder={gidf_json['f']}&page=10"
             
-            if overwrite is False and os.path.isfile(tmp_folder + filename + '/' + filename + '.json'):
-                tqdm.write('skipping ' + filename + '.json');
+            if not os.path.isdir(tmp_folder + date ):
+                os.makedirs(tmp_folder + date )
+            if not os.path.isdir(tmp_folder + date + '/' + filename):
+                os.makedirs(tmp_folder + date + '/' + filename)
+
+            if overwrite is False and os.path.isfile(tmp_folder + date + '/' + filename + '/' + filename + '.json'):
+                tqdm.write('skipping ' + date + '/' + filename + '.json');
                 continue #if overwrite = False and file exists, continue
 
             try:
@@ -155,19 +167,19 @@ for row in tqdm(rows, desc='days'):
                 logging.error(f'Error processing URL {ziurl_jsonp}: {e}')
             
             try:
-                with open(tmp_folder + filename + '/' + filename + '.json', 'wb') as f:
+                with open(tmp_folder + date + '/' + filename + '/' + filename + '.json', 'wb') as f:
                     f.write(response.content) 
-                    tqdm.write(' >> ' + tmp_folder + filename + '/' + filename + '.json')       
+                    tqdm.write(' >> ' + tmp_folder + date + '/' + filename + '/' + filename + '.json')       
             except Exception as e:
-                logging.error(f'Error saving PDF URL : {e}')
+                logging.error(f' > E172 > Error saving PDF URL : {e}')
 
             for i in range(1, gidf_json['p'] + 1):
                 ziurl = f"https://monitoruloficial.ro/ramo_customs/emonitor/showmo/services/view.php?doc={gidf_json['d']}&format=pdf&subfolder={gidf_json['f']}&page={i}"
                
-                if overwrite is False and os.path.isfile(tmp_folder + filename + '/' + str(i) + '.pdf'):
+                if overwrite is False and os.path.isfile(tmp_folder + date + '/' + filename + '/' + str(i) + '.pdf'):
                         files_found += 1
                         # if verbose:
-                        tqdm.write('skipping ' + filename + '.pdf');
+                        tqdm.write('skipping ' + date + '/' + filename + '.pdf');
                         continue #if overwrite = False and file exists, continue
 
                 try:
@@ -177,7 +189,7 @@ for row in tqdm(rows, desc='days'):
                 
                 try:
                     # with open(output_folder + date + '.pdf', 'wb') as f:
-                    with open(tmp_folder + filename + '/' + str(i) + '.pdf', 'wb') as f:
+                    with open(tmp_folder + date + '/'  + filename + '/' + str(i) + '.pdf', 'wb') as f:
                         f.write(response.content)        
                 except Exception as e:
                     logging.error(f'Error saving PDF URL : {e}')
