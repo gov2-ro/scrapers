@@ -5,11 +5,11 @@ scrape [monitoruloficial.ro/e-monitor](https://monitoruloficial.ro/e-monitor/) �
 - [x] local cache
     - [x] fetch daily părți
     - [x] download pdfs
-    - [ ] fetch P-III - P-VII (online for 10 days)
+    - [x] fetch P-III - P-VII (online for 10 days)
         - [x] fetch individual pages
-        - [ ] fetch jsonp's
+        - [x] fetch jsonp's
         - [ ] concatenate pdfs
-        - [ ] OCR
+            - [ ] OCR needed pages
 
 - [ ] structured text/html from PDF
     - [ ] PDF → HTML see [pdf2txt.xslx](https://docs.google.com/spreadsheets/d/1APEmulzWa7PGgDg_mc-7rnY_vbxX2Q6Y) 

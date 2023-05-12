@@ -1,3 +1,5 @@
+""" moves mo folders in root under respective dates """
+
 import os, sqlite3, sys, shutil, logging
 
 root_folder =   '../../data/mo/pdfs/_p3+/tmp/'
