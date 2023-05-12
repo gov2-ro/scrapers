@@ -131,17 +131,39 @@ def derulare_proc(td_soup):
             # print(node)  # Text-only node
             # obj[ii]=node.text
             # obj[ii]=str(node)
-            obj[ii]=node #is already str?
+            obj[ii]={type: "_self", "value": node} #is already str?
+        # Tag nodes 
+        # TODO: ook for:
+        #   dd > table td  a (check if a doc or pdf and if siblings, get name from adjacent td - which can be text or link)
+        #   div#obs - can have text and inner links; can be in root or inside dd 
+
+        elif node.name == 'dd':
+            # obj[ii] = {'type': 'dd', 'value' : html2obj(node.text)}
+            # look at children
+            for subnode in node.contents:
+                # is obs
+                # is table
+                if subnode.name == 'div' and subnode.element.get(id) == 'obs':
+                    obj[ii] = {'type': 'dd_obs', 'value' : html2obj(subnode.text)}
+                if subnode.name == 'table':
+                    tdata = '[]'
+                    # has one single row, has tbody
+                    tbody = subnode.find("tbody")
+                    for row in tbody.find_all("tr"):
+                        rowdata = []
+                        for cell in row.find_all("td"):
+                            rowdata.append(html2obj)
+                        tdata.append(rowdata)
+                    obj[ii]={type: "table", "value": tdata}
+        elif node.name == 'div' and node.element.get(id) == 'obs':
+            obj[ii] = {'type': 'obs', 'value' : html2obj(node)}            
+
         else:
-            # Tag node 
-            # TODO: ook for:
-            #   dd > table td  a (check if a doc or pdf and if siblings, get name from adjacent td - which can be text or link)
-            #   div#obs - can have text and inner links
-  
-
-
+            print('-- ERR 155 ' + str(ii) + ' <' + node.name + '> ' ) 
+            # print('-- ' + node.text)
             print(str(node))  
-
+            breakpoint()    
+ 
 def hrefs2(input_soup):
     xjson_data = {}
     for a_tag in input_soup.find_all('a'):
