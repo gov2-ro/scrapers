@@ -1,5 +1,5 @@
 import requests, json, sys, os, time, sqlite3,random, argparse, logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 sys.path.append("../utils/")
@@ -26,8 +26,8 @@ check if files / rows already save, overwrite
 db_filename    =  '../../data/mo/mo.db'
 table_name     =  'dates_lists'
 cache_dir      =  '../../data/mo/html_cache/'
-start_date     =  '2000-01-04'
-end_date       =  '2023-04-18'
+start_date     =  datetime.today() - timedelta(days=15)
+end_date       =  datetime.today().strftime('%Y-%m-%d')
 save_to_cache  =  True
 save_to_db     =  True
 overwrite      =  False           # if True, don't check if date exists
@@ -54,8 +54,6 @@ if args.mode:
     mode = args.mode
     if mode == 'all':
         end_date = datetime.today().strftime('%Y-%m-%d')
-
-
 
 zidates = generate_dates(start_date, end_date, '%Y-%m-%d')
 pbar = tqdm(len(zidates))

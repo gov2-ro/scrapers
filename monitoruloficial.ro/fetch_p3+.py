@@ -1,7 +1,8 @@
-import sqlite3, json, requests, sys, os, time, random, re, random, json
+import sqlite3, json, requests, sys, os, time, random, re, random, json, argparse
 import logging
 from tqdm import tqdm
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 sys.path.append("../utils/")
 from common import base_headers
 
@@ -23,12 +24,34 @@ pause           =   10      # seconds
 shy_parts       =   ["III-a", "IV-a", "VI-a", "VII-a"] # ascunse după10 zile
 url_base        =   'https://monitoruloficial.ro'
 transit_url     =   'https://monitoruloficial.ro/ramo_customs/emonitor/gidf.php' # to get number of pages
+start_date      =   datetime.today() - timedelta(days=10)
+end_date        =   datetime.today().strftime('%Y-%m-%d')
 #  - - - - - - - - - - - - - - - - - - - - -  
+
+parser = argparse.ArgumentParser(description='looks for dates and return lists of parti MO')
+parser.add_argument('-start', '--start_date', help='start date')
+parser.add_argument('-end', '--end_date', help='end date')
+parser.add_argument('--overwrite', help='True / False - if False, check if date exists, if it does, don\'t overwrite')
+parser.add_argument('-m', '--mode', help='mode: l-<x> - last <x> days, all - from the beginning to today ')
+args = parser.parse_args()
+if args.start_date:
+    start_date = args.start_date
+if args.end_date:
+    end_date = args.end_date
+if args.overwrite:
+    overwrite = args.overwrite
+if args.mode:
+    mode = args.mode
+    if mode == 'all':
+        end_date = datetime.today().strftime('%Y-%m-%d')
+
+# end_date = datetime.today().strftime('%Y-%m-%d')
 
 conn = sqlite3.connect(db_filename)
 c = conn.cursor()
 # c.execute('SELECT * FROM ' + table_name + ' ORDER BY date DESC')
-c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '2023-04-10' AND '2023-04-20';") #FIXME: - remove after
+# c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '2023-04-10' AND '2023-04-12';")
+c.execute("SELECT * from '" + table_name + "' WHERE date BETWEEN '" + str(start_date) + "' AND '" + end_date + "';") 
 rows = c.fetchall()
  
 nrows = len(rows)
