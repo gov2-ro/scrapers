@@ -93,10 +93,10 @@ for row in tqdm(rows, desc='days'):
                     # tqdm.write(f"created " + str(year) + " folder", end="\r")
                     tqdm.write("created " + str(year) + " folder")
             
-            if not os.path.exists(tmp_folder + filename ):
-                    os.makedirs(tmp_folder + filename )
-                    # tqdm.write(f"created " + str(year) + " folder", end="\r")
-                    tqdm.write("created " + tmp_folder + filename  + " folder")
+            # if not os.path.exists(tmp_folder + filename ):
+            #         os.makedirs(tmp_folder + filename )
+            #         # tqdm.write(f"created " + str(year) + " folder", end="\r")
+            #         tqdm.write("created " + tmp_folder + filename  + " folder")
 
             # FIXME: if file exists don't overwrite?
 
@@ -190,7 +190,8 @@ for row in tqdm(rows, desc='days'):
                 try:
                     # with open(output_folder + date + '.pdf', 'wb') as f:
                     with open(tmp_folder + date + '/'  + filename + '/' + str(i) + '.pdf', 'wb') as f:
-                        f.write(response.content)        
+                        f.write(response.content)
+                        all_files+=1        
                 except Exception as e:
                     logging.error(f'Error saving PDF URL : {e}')
             

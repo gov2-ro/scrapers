@@ -1,9 +1,9 @@
 import datetime
 
-def generate_dates(start_date_str, end_date_str, format='%d.%m.%Y'):
+def generate_dates(start_date, end_date, format='%d.%m.%Y'):
     # Convert the start and end date strings to date objects
-    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    # start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    # end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
     # Define a function to check if a date is a weekend
     def is_weekend(date):

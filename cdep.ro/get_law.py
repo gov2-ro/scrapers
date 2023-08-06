@@ -2,11 +2,10 @@ import requests, sqlite3, sys, json, logging
 from bs4 import BeautifulSoup
 from urllib.parse import parse_qs, urlparse
 from datetime import datetime
+
 sys.path.append("../utils/")
 from common import readfile, writefile
 from json_from_html import html2obj
-
-
 """ 
 ## TODOs
 
@@ -24,9 +23,12 @@ from json_from_html import html2obj
 db_filename = '../../data/cdep/cdep.db'
 table = 'laws'
 
-ignore_keys = ['width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign', 'height', 'colspan', 'align', 'nowrap', 'bgcolor']
-inputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.html'
-outputfile ='../../data/cdep/sample/Pl-x nr. 8_2010.json'
+ignore_keys = [
+    'width', 'cellspacing', 'cellpadding', 'border', 'style', 'valign',
+    'height', 'colspan', 'align', 'nowrap', 'bgcolor'
+]
+inputfile = '../../data/cdep/sample/Pl-x nr. 8_2010.html'
+outputfile = '../../data/cdep/sample/Pl-x nr. 8_2010.json'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,6 +45,7 @@ def hrefs_json1(input_soup):
         xjson_data[key] = value
     return json.dumps(xjson_data)
 
+
 def table_initiatori(inner_table):
     json_data = {}
     rows = inner_table.find_all('tr')
@@ -51,17 +54,18 @@ def table_initiatori(inner_table):
         subcells = row.find_all('td')
         if len(subcells) >= 2:
             # breakpoint()
-            subkey = subcells[0].text.replace(':','')
+            subkey = subcells[0].text.replace(':', '')
             # xrint(subkey)
             # subvalue = subcells[1].text.strip()
             zilist = subcells[1]
             ll = hrefs_json1(zilist)
-            try:               
-                json_data[subkey] = json.loads(ll) 
+            try:
+                json_data[subkey] = json.loads(ll)
             except Exception as e:
-                logger.error('err: '+ str(e))
+                logger.error('err: ' + str(e))
                 breakpoint()
-    return(json_data)
+    return (json_data)
+
 
 def table_consultanti(inner_table):
     json_data = {}
@@ -77,34 +81,34 @@ def table_consultanti(inner_table):
             for a_tag in subcells[0].find_all('a'):
                 hrefz = a_tag['href']
             json_data[subkey] = hrefz
-    return(json_data)
+    return (json_data)
+
 
 def table_derulare_procedura(inner_table):
     # first 5 rows to be ignored
     # starts at first <tr valign="top"><td align="center" bgcolor="#fff0d8">
     # only  <tr valign="top"> are relevant
     # detect date on the left, concatenate strings on the right (see <td colspan="2"> - can have subtable ), until next date or end
-    # <dd><table> has downloads or html links 
-    
+    # <dd><table> has downloads or html links
 
     json_data = {}
     # rows = inner_table.find_all('tr')
     # tbody = inner_table.find('tbody')
     # breakpoint()
-    rows = inner_table.children #so only immediate rows
+    rows = inner_table.children  #so only immediate rows
     for row in rows:
         if row.name != 'tr':
             continue
         if (not row.has_attr("valign")) or row["valign"] != "top":
             continue
         # subcells = row.find_all('td')
-        subcells = row.children #only the immediate tds
+        subcells = row.children  #only the immediate tds
         lx = 0
         for td in subcells:
- 
+
             if td.name != 'td':
                 continue
-            
+
             if lx == 0:
                 subkey = td.text.strip()
                 if subkey != '':
@@ -116,58 +120,109 @@ def table_derulare_procedura(inner_table):
                 if datekey not in json_data:
                     json_data[datekey] = []
                     json_data[datekey].append(html2obj(td, ignore_keys))
-                else:                    
+                else:
                     json_data[datekey].append(html2obj(td, ignore_keys))
             lx += 1
     return json_data
 
-def derulare_proc(td_soup):
+
+def derulare_xproc(td_soup):
     # break into pieces
     obj = {}
     ii = 0
-    for node in td_soup.contents:
-        ii +=1
-        if node.name is None:
-            # print(node)  # Text-only node
-            # obj[ii]=node.text
-            # obj[ii]=str(node)
-            obj[ii]={type: "_self", "value": node} #is already str?
-        # Tag nodes 
-        # TODO: ook for:
-        #   dd > table td  a (check if a doc or pdf and if siblings, get name from adjacent td - which can be text or link)
-        #   div#obs - can have text and inner links; can be in root or inside dd 
 
-        elif node.name == 'dd':
-            # obj[ii] = {'type': 'dd', 'value' : html2obj(node.text)}
-            # look at children
-            for subnode in node.contents:
-                # is obs
-                # is table
-                if subnode.name == 'div' and subnode.element.get(id) == 'obs':
-                    obj[ii] = {'type': 'dd_obs', 'value' : html2obj(subnode.text)}
-                if subnode.name == 'table':
-                    tdata = '[]'
-                    # has one single row, has tbody
-                    tbody = subnode.find("tbody")
-                    for row in tbody.find_all("tr"):
-                        rowdata = []
-                        for cell in row.find_all("td"):
-                            rowdata.append(html2obj)
-                        tdata.append(rowdata)
-                    obj[ii]={type: "table", "value": tdata}
-        elif node.name == 'div' and node.element.get(id) == 'obs':
-            obj[ii] = {'type': 'obs', 'value' : html2obj(node)}            
+    for trz in td_soup.find_all('tr'):
+        tdz = trz.find_all('td')
+        nodezz = tdz[2]  #third td
+        breakpoint()
+        for node in nodezz.contents:
+            # breakpoint()
+            # if ''.join(node.split()) == '':
+            #     continue
 
-        else:
-            print('-- ERR 155 ' + str(ii) + ' <' + node.name + '> ' ) 
-            # print('-- ' + node.text)
-            print(str(node))  
-            breakpoint()    
- 
+            # each node is a <tr> FIXME: should be the third td
+
+            ii += 1
+            if node.name is None:
+                # print(node)  # Text-only node
+                # obj[ii]=node.text
+                # obj[ii]=str(node)
+                obj[ii] = {"type": "_self", "value": node}  #is already str?
+
+            # Tag nodes
+            # TODO: ook for:
+            #   dd > table td  a (check if a doc or pdf and if siblings, get name from adjacent td - which can be text or link)
+            #   div#obs - can have text and inner links; can be in root or inside dd
+
+            elif node.name == 'dd':
+                # obj[ii] = {'type': 'dd', 'value' : html2obj(node.text)}
+                # look at children
+
+                for subnode in node.contents:
+                    # is obs
+                    # is table
+                    # print(subnode.name)
+                    if subnode.name == 'div' and subnode.element.get(
+                            id) == 'obs':
+                        obj[ii] = {
+                            'type':
+                            'dd_obs',
+                            'value':
+                            html2obj(subnode.text, [
+                                'id', 'style', 'align', 'border', 'height',
+                                'width', 'bgcolor'
+                            ])
+                        }
+                    if subnode.name == 'table':
+                        # if one td, get link name from there
+                        # if 2 tds, files in the first get name from text in second, which also can have url
+                        # ignore tr with 1 td = img src = "/img/spacer.gif"
+                        tdata = '[]'
+                        # has one single row, has tbody
+                        tbody = subnode.find("tbody")
+                        for row in tbody.find_all("tr"):
+                            rowdata = []
+                            print('row')
+                            print(len(row))
+                            breakpoint()
+                            for cell in row.find_all("td"):
+                                rowdata.append(html2obj, [
+                                    'id', 'style', 'align', 'border', 'height',
+                                    'width', 'bgcolor'
+                                ])
+                            tdata.append(rowdata)
+                        obj[ii] = {type: "table", "value": tdata}
+            elif node.name == 'div' and node.element.get(id) == 'obs':
+                obj[ii] = {
+                    'type':
+                    'obs',
+                    'value':
+                    html2obj(node, [
+                        'id', 'style', 'align', 'border', 'height', 'width',
+                        'bgcolor'
+                    ])
+                }
+
+            else:
+                obj[ii] = {
+                    'type':
+                    node.name,
+                    'value':
+                    html2obj(node, [
+                        'id', 'style', 'align', 'border', 'height', 'width',
+                        'bgcolor'
+                    ])
+                }
+            # print('-- ERR 167 ' + str(ii) + ' <' + node.name + '> : ' + ' '.join(node.text.split()) )
+
+    return obj
+
+
 def hrefs2(input_soup):
     xjson_data = {}
     for a_tag in input_soup.find_all('a'):
         hrefz = a_tag['href']
+
 
 def doTables(input_soup):
     filtered_html = ''
@@ -201,18 +256,18 @@ else:
 # scrape the table data
 detalii_initiativa_rows = soup.select('div.detalii-initiativa table tr')
 data = {}
-data ={
-    "nr_inregistrare":"",
-    "cdep":"",
-    "senat":"",
-    "guvern":"",
-    "proc_leg":"",
-    "camera_decizionala":"",
-    "termen_adoptare":"",
-    "tip_initiativa":"",
-    "caracter":"",
-    "p_urgenta":"",
-    "stadiu":""
+data = {
+    "nr_inregistrare": "",
+    "cdep": "",
+    "senat": "",
+    "guvern": "",
+    "proc_leg": "",
+    "camera_decizionala": "",
+    "termen_adoptare": "",
+    "tip_initiativa": "",
+    "caracter": "",
+    "p_urgenta": "",
+    "stadiu": ""
 }
 # data = {"nr_inregistrare":"","cdep":"","senat":"","guvern":"","proc_leg":"","camera_decizionala":"","termen_adoptare":"","tip_initiativa":"","caracter":"","p_urgenta":"","stadiu:"}
 for row in detalii_initiativa_rows:
@@ -244,17 +299,17 @@ for row in detalii_initiativa_rows:
             data['p_urgenta'] = value
         elif 'Stadiu' in key:
             data['stadiu'] = value
-  
+
         elif 'Initiator' in key:
             # check if there is an inner table in the second td
             # TODO: see if text outside table
             inner_table = tds[1].find('table')
             if inner_table:
                 # data['initiatori'] = json.dumps(json_data)
-                data['initiatori'] = json.dumps(table_initiatori(inner_table), ensure_ascii=False)
+                data['initiatori'] = json.dumps(table_initiatori(inner_table),
+                                                ensure_ascii=False)
             else:
                 data['initiator'] = value
-    
 
         elif 'Consultati' in key:
             # check if there is an inner table in the second td
@@ -262,16 +317,29 @@ for row in detalii_initiativa_rows:
             inner_table = tds[1].find('table')
             if inner_table:
                 # data['initiatori'] = json.dumps(json_data)
-                data['consultanti'] = json.dumps(table_consultanti(inner_table), ensure_ascii=False) 
+                data['consultanti'] = json.dumps(
+                    table_consultanti(inner_table), ensure_ascii=False)
             else:
                 data['consultanti'] = value
 
 # Derularea procedurii legislative
-derulare_procedura = soup.find("div", {"id": "olddiv"}).find("table", recursive=False)
+derulare_procedura = soup.find("div", {
+    "id": "olddiv"
+}).find("table", recursive=False)
 # data['derulare_procedura'] = table_derulare_procedura(derulare_procedura)
-data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
+# data['derulare_procedura'] = json.dumps(table_derulare_procedura(derulare_procedura), ensure_ascii=False)
+# print(derulare_xproc(derulare_procedura))
+# sys.exit()
+try:
+    data['derulare_procedurax'] = json.dumps(
+        derulare_xproc(derulare_procedura), ensure_ascii=False)
+except Exception as e:
+    logger.error(' -- eRr 280: ' + str(e) + "\n\r")
+    breakpoint()
 
-print(data['derulare_procedura'])
+# print("should I print(data['derulare_procedurax']) ?")
+# breakpoint()
+print(data['derulare_procedurax'])
 sys.exit()
 # TODO: check if exists
 # write to db
@@ -285,18 +353,24 @@ c.execute('''CREATE TABLE IF NOT EXISTS laws
               initiator text, initiatori text, consultanti text, derulare_procedura, caseta_lista text, vezi_senat, fetch_date text
               , PRIMARY KEY("nr_inregistrare")
               )''')
-# FIXME: if nr inregistrare primay key can't overwrite 
- 
+# FIXME: if nr inregistrare primay key can't overwrite
+
 #  TODO: check if exists, later add new version only if different data
 qxx = "INSERT INTO " + table + " (title, descriere, nr_inregistrare, cdep, senat, guvern, proc_leg, camera_decizionala, termen_adoptare, tip_initiativa, caracter, p_urgenta, stadiu, consultanti, initiatori, derulare_procedura, vezi_senat, fetch_date) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
- 
+
 # breakpoint()
 try:
-    c.execute(qxx, (title  , descriere , data['nr_inregistrare'], data['cdep'], data['senat'], data['guvern'], data['proc_leg'], data['camera_decizionala'], data['termen_adoptare'], data['tip_initiativa'], data['caracter'], data['p_urgenta'], data['stadiu'] , data['consultanti'], data['initiatori'], data['derulare_procedura'], vezi_operatiuni_url, datetime.today().strftime('%y%m%d')))
+    c.execute(qxx, (title, descriere, data['nr_inregistrare'], data['cdep'],
+                    data['senat'], data['guvern'], data['proc_leg'],
+                    data['camera_decizionala'], data['termen_adoptare'],
+                    data['tip_initiativa'], data['caracter'],
+                    data['p_urgenta'], data['stadiu'], data['consultanti'],
+                    data['initiatori'], data['derulare_procedura'],
+                    vezi_operatiuni_url, datetime.today().strftime('%y%m%d')))
 except Exception as e:
-    logger.error('eRrx: '+ str(e) + "\n\r" + qxx )
+    logger.error('eRrx: ' + str(e) + "\n\r" + qxx)
     breakpoint()
- 
+
 conn.commit()
 conn.close()
 

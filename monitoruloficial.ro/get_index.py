@@ -27,7 +27,7 @@ db_filename    =  '../../data/mo/mo.db'
 table_name     =  'dates_lists'
 cache_dir      =  '../../data/mo/html_cache/'
 start_date     =  datetime.today() - timedelta(days=15)
-end_date       =  datetime.today().strftime('%Y-%m-%d')
+end_date       =  datetime.today() 
 save_to_cache  =  True
 save_to_db     =  True
 overwrite      =  False           # if True, don't check if date exists
@@ -53,8 +53,9 @@ if args.overwrite:
 if args.mode:
     mode = args.mode
     if mode == 'all':
-        end_date = datetime.today().strftime('%Y-%m-%d')
-
+        # end_date = datetime.today().strftime('%Y-%m-%d')
+        end_date = datetime.today()
+ 
 zidates = generate_dates(start_date, end_date, '%Y-%m-%d')
 pbar = tqdm(len(zidates))
 ii = 0
@@ -66,7 +67,7 @@ c.execute('''CREATE TABLE IF NOT EXISTS ''' + table_name + '''
             "json"	TEXT,
             PRIMARY KEY("date"))''')
 
-tqdm.write(' -- dates in between: ' + start_date + ' and ' + end_date);
+tqdm.write(' -- dates in between: ' + start_date.strftime('%Y-%m-%d') + ' and ' + end_date.strftime('%Y-%m-%d'));
 if overwrite: 
     tqdm.write(' -- overwriting previously saved dates')
 else:
@@ -74,7 +75,7 @@ else:
 
 if overwrite is False:
     # exclude zidates that are already in the database
-    c.execute("SELECT date from dates_lists WHERE date BETWEEN '" + start_date + "' AND '" + end_date + "';")
+    c.execute("SELECT date from dates_lists WHERE date BETWEEN '" + start_date.strftime('%Y-%m-%d') + "' AND '" + end_date.strftime('%Y-%m-%d') + "';")
     sqlite_dates = [row[0] for row in c.fetchall()]
     if len(sqlite_dates):
         tqdm.write(' -- skipping ' + str(len(sqlite_dates)) + ' days found in the db')
