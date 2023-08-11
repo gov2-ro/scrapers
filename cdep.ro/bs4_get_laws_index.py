@@ -4,10 +4,11 @@ from bs4 import BeautifulSoup
 import logging
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, filename='scraping.log')
+logfile = '/Users/pax/devbox/gov2/data/cdep/scraping.log'
+logging.basicConfig(level=logging.DEBUG, filename=logfile)
 
 # Connect to the database
-conn = sqlite3.connect('../data/cdep/cdep.db')
+conn = sqlite3.connect('/Users/pax/devbox/gov2/data/cdep/cdep.db')
 c = conn.cursor()
 
 # Create the laws_index table

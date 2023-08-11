@@ -1,7 +1,8 @@
 import csv, sqlite3 
 base = 'https://www.cdep.ro/pls/proiecte/upl_pck2015.lista?cam=2'
 output_csv = '../data/cdep/liste-legi-ani-cdep.csv'
-db_filename = '../data/cdep/cdep.db'
+output_csv = '/Users/pax/devbox/gov2/data/cdep/liste-legi-ani-cdep.csv'
+db_filename = '/Users/pax/devbox/gov2/data/cdep/cdep.db'
 table = 'src_years'
 
 def incremental_urls(preffix = '', suffix = '', min_val = 1996, max_val = 2023):

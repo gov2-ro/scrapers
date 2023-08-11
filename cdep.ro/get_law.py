@@ -20,7 +20,7 @@ from json_from_html import html2obj
 
  """
 
-db_filename = '../../data/cdep/cdep.db'
+db_filename = '/Users/pax/devbox/gov2/data/cdep/cdep.db'
 table = 'laws'
 
 ignore_keys = [
