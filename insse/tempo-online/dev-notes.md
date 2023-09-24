@@ -1,11 +1,31 @@
 see [dev notes](https://docs.google.com/document/d/1FY_1Bb2RF8JGoplnBvvIBTN-PkCfYnGR) / gDoc
 
+
+- 1fetch-context.py →  context.csv
+
+- 2fetch-dataset-list.py → datasets.csv
+loops context.csv and fetches dataset lists
+
+- 3fetch-meta → data/meta/<datasetId>.json
+
+- 4fetch-csvs - downloads csvs
+
+- 5clean-csvs → database structure
+config.json - with converters per dataset
+or individual receipes/<datasetId>.json
+ignored columns
+
+
+
+
 ### Roadmap
 
-- [ ] fetch index
+- [x] fetch index
+- [ ] fetch sub-index (dataset lists)
 - [ ] download csvs
 - [ ] refactor csvs -> db
 - [ ] dashboard / charts
+
 
 
 ### Fetch Index
