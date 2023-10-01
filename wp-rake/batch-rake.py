@@ -1,8 +1,12 @@
-import requests, json, sqlite3, csv, re
+import requests
+import json
+import sqlite3
+import csv
+import re
 from tqdm import tqdm
 
 # Define the SQLite database file
-dbFile = '../../data/wp/wp-articles.db'
+dbFile = '../../data/wp/wp-articles2.db'
 
 # Read the list of sites from the CSV file
 sitelist = '../../data/wp/sites-wp.csv'
@@ -10,7 +14,6 @@ url_column = 2
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36"
 }
-
 
 # Create a SQLite connection and cursor
 conn = sqlite3.connect(dbFile)
@@ -47,6 +50,38 @@ cursor.execute('''
 conn.commit()
 
 
+# Function to fetch tags for a post
+def fetch_tags(post_id, site_url):
+    tags_url = f"{site_url}/wp-json/wp/v2/tags?post={post_id}"
+    response = requests.get(tags_url, headers=headers)
+    try:
+        response.raise_for_status()
+        tag_data = response.json()
+        return [tag["slug"] for tag in tag_data]
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch tags for post {post_id} with exception: {e}")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode tags JSON for post {post_id} with exception: {e}")
+        return []
+
+
+# Function to fetch categories for a post
+def fetch_categories(post_id, site_url):
+    categories_url = f"{site_url}/wp-json/wp/v2/categories?post={post_id}"
+    response = requests.get(categories_url, headers=headers)
+    try:
+        response.raise_for_status()
+        category_data = response.json()
+        return [category["slug"] for category in category_data]
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch categories for post {post_id} with exception: {e}")
+        return []
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode categories JSON for post {post_id} with exception: {e}")
+        return []
+
+
 # Initialize counts
 site_count = 0
 article_count = 0
@@ -58,8 +93,8 @@ with open(sitelist, 'r') as csvfile:
     next(reader)  # Skip the header row
 
     for row in tqdm(reader, desc="Sites"):
-        site_url = row[url_column] 
-        
+        site_url = row[url_column]
+
         # Construct the API URL
         api_url = f"{site_url}/wp-json/wp/v2/posts"
 
@@ -81,11 +116,14 @@ with open(sitelist, 'r') as csvfile:
                 # Save data to the SQLite database for each article
                 for article_data in data:
                     article_count += 1
+                    # Fetch tags and categories
+                    tags = fetch_tags(article_data["id"], site_url)
+                    categories = fetch_categories(article_data["id"], site_url)
                     cursor.execute('''
                         INSERT INTO articles (domain, date, date_gmt, guid, modified, modified_gmt, slug, status, type, link, title, content, excerpt, author, featured_media, comment_status, ping_status, sticky, template, format, categories, tags)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''', (
-                        re.sub(r'^(https?://)?(www\.)?', '', site_url),
+                        re.sub(r'^(https?://)?(www\.)?', '', site_url).strip("/"),
                         article_data["date"],
                         article_data["date_gmt"],
                         article_data["guid"]["rendered"],
@@ -105,8 +143,8 @@ with open(sitelist, 'r') as csvfile:
                         article_data["sticky"],
                         article_data["template"],
                         article_data["format"],
-                        json.dumps(article_data["categories"]),
-                        json.dumps(article_data["tags"])
+                        json.dumps(categories),
+                        json.dumps(tags)
                     ))
                 conn.commit()
 
