@@ -1,7 +1,4 @@
-import requests
-import json
-import sqlite3
-import csv
+import requests, json, sqlite3, csv, re
 from tqdm import tqdm
 
 # Define the SQLite database file
@@ -88,7 +85,7 @@ with open(sitelist, 'r') as csvfile:
                         INSERT INTO articles (domain, date, date_gmt, guid, modified, modified_gmt, slug, status, type, link, title, content, excerpt, author, featured_media, comment_status, ping_status, sticky, template, format, categories, tags)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''', (
-                        site_url,
+                        re.sub(r'^(https?://)?(www\.)?', '', site_url),
                         article_data["date"],
                         article_data["date_gmt"],
                         article_data["guid"]["rendered"],
