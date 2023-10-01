@@ -5,6 +5,16 @@ url = "https://www.adr.gov.ro/wp-json/wp/v2/posts"
 dataRoot = '../../data/wp/adr/'
 fileName='adr.gov.ro'
 
+domainRoot = "https://anes.gov.ro"
+dataRoot = '../../data/wp/anes/'
+fileName='anes.gov.ro'
+
+domainRoot = "https://copii.gov.ro/1"
+dataRoot = '../../data/wp/copii/'
+fileName='copii.gov.ro'
+
+url = domainRoot + '/wp-json/wp/v2/posts'
+
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36"
 }
