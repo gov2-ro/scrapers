@@ -144,7 +144,7 @@ with tqdm(total=total_urls, desc="Sites", dynamic_ncols=True) as pbar:
         next(reader)  # Skip the header row
         for row in reader:
             site_url = row[url_column]
-            parsed_domain = re.sub(r'^(https?://)?(www\.)?', '', site_url)
+            parsed_domain = re.sub(r'^(https?://)?(www\.)?', '', site_url).strip('/')
             tag_slugs_cache = {}  # Clear the tag slugs cache for each site
             category_slugs_cache = {}  # Clear the category slugs cache for each site
 
