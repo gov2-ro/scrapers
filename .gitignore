@@ -2,6 +2,8 @@
 /data/*
 *.code-workspace
 */_obsolete
+*/*.log
+*.log
 */data/*
 _obsolete
 */geckodriver.log
