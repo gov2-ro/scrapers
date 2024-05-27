@@ -10,8 +10,8 @@ def run_script(script_name):
     print(f"{script_name} executed in {execution_time:.2f} seconds")
 
 if __name__ == "__main__":
-    # List of your script filenames
-    script_filenames = ["get_index.py", "fetch_pdfs.py", "fetch_p3+.py"]
+    # script_filenames = ["get_index.py", "fetch_pdfs.py", "fetch_p3+.py"]
+    script_filenames = ["get_index.py", "fetch_p3+.py"]
 
     for script in script_filenames:
         run_script(script)
