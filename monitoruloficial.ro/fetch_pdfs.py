@@ -1,108 +1,115 @@
+dataqRoot = '../../data/mo/'
+db_filename = dataqRoot + 'mo-x.db'
+table_name = '[mo-index2]'
+output_folder = dataqRoot + 'pdfs/'
+verbose = False
+overwrite = False
+pause_at = 30
+pause = 10
+url_base = 'https://monitoruloficial.ro'
+shy_parts = ["III-a", "IV-a", "VI-a", "VII-a"]
+
+
+
 import sqlite3, json, requests, sys, os, time, random
 import logging
 from tqdm import tqdm
 
+def format_size(size_bytes):
+    """Convert bytes to human readable format"""
+    for unit in ['B', 'KB', 'MB', 'GB']:
+        if size_bytes < 1024.0:
+            return f"{size_bytes:3.1f} {unit}"
+        size_bytes /= 1024.0
+    return f"{size_bytes:.1f} GB"
+
 sys.path.append("../utils/")
 from common import base_headers
 
-""" 
-read each json
-download pdfs
-check if exists, mode overwrite, mode update
-# TODO: write log to db? checksum?
- """
-
-db_filename     =   '../../data/mo/mo.db'
-table_name      =   'dates_lists'
-output_folder   =   '../../data/mo/pdfs/'
-verbose         =   False
-overwrite       =   False   # if false check if file exists, don't fetch again
-pause_at        =   30      # days
-pause           =   10      # seconds
-url_base        =   'https://monitoruloficial.ro'
-shy_parts       =   ["III-a", "IV-a", "VI-a", "VII-a"] # ascunse după10 zile
-#  - - - - - - - - - - - - - - - - - - - - -  
 
 conn = sqlite3.connect(db_filename)
 c = conn.cursor()
 c.execute('SELECT * FROM ' + table_name + ' ORDER BY date DESC')
 rows = c.fetchall()
- 
+
 nrows = len(rows)
 tqdm.write(' > ' + str(nrows) + ' days in the db')
 all_files = 0
 files_found = new_files_found = 0
 prev_year = 1000
 
-for row in tqdm(rows, desc='days'):
-# Iterate over the rows and convert the JSON string to a dictionary
+for row in tqdm(rows, desc='days', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {desc}]'):
     date, json_str = row
     json_dict = json.loads(json_str)
-    ii = 0
-    for sectiune, parti in tqdm(json_dict.items(), desc='părți', leave=False):
-        # check if parte > 3, don't bother.
+    tqdm.write(f"\ndate: {date}")
+    
+    for sectiune, parti in tqdm(json_dict.items(), 
+                               desc=f'părți ({date})', 
+                               leave=False):
         if any(part in sectiune for part in shy_parts):
             continue
 
-        for nr, url in tqdm(parti.items(), desc='pdfs', leave=False):
-            jj = 0
-            # download pdf
+        for nr, url in tqdm(parti.items(), 
+                           desc=f'pdfs ({sectiune})', 
+                           leave=False,
+                           bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}] {desc}'):
             filename = os.path.splitext(url[1:])[0]
             urlparts = filename.split('--')
-
-            year=urlparts[-1]
+            year = urlparts[-1]
+            
             if len(year) != 4:
                 tqdm.write('err: ' + str(year))
             
             if str(year) != str(prev_year):
-                tqdm.write(f" -- current year: " + str(year) + " -", end="\r")
-                # check if folder exists, cread if not, print.
-                if not os.path.exists(output_folder + str(year) ):
+                tqdm.write(f" -- current year: {year} --")
+                if not os.path.exists(output_folder + str(year)):
                     os.makedirs(output_folder + str(year))
-                    # tqdm.write(f"created " + str(year) + " folder", end="\r")
-                    tqdm.write("created " + str(year) + " folder")
-
+                    tqdm.write(f"created {year} folder")
+            
             prev_year = year
+            current_file = f"{filename}.pdf"
+            output_path = output_folder + year + '/' + current_file
 
-            if verbose:
-                tqdm.write('>> ' + url_base + url)
-
-            if overwrite is False and os.path.isfile(output_folder + str(year) + '/' + filename + '.pdf'):
+            if overwrite is False and os.path.isfile(output_path):
+                file_size = os.path.getsize(output_path)
                 files_found += 1
                 if verbose:
-                    tqdm.write('skipping ' + filename + '.pdf');
-                continue #if overwrite = False and file exists, continue
+                    tqdm.write(f'skipping {current_file} ({format_size(file_size)})')
+                continue
 
-               
             try:
+                # First make a HEAD request to get content length
+                head_response = requests.head(url_base + url, headers=base_headers('headers2'))
+                expected_size = int(head_response.headers.get('content-length', 0))
+                # tqdm.write(f" -: {current_file} (expected size: {format_size(expected_size)})")
+
+                # Then get the actual file
                 response = requests.get(url_base + url, headers=base_headers('headers2'))
-            except Exception as e:
-                logging.error(f'Error processing URL {url_base + url}: {e}')
-            
-            # save pdf
-            try:
-                # with open(output_folder + date + '.pdf', 'wb') as f:
-                with open(output_folder + year + '/' +  filename + '.pdf', 'wb') as f:
+                actual_size = len(response.content)
+                
+                with open(output_path, 'wb') as f:
                     f.write(response.content)
                     all_files += 1
                     time.sleep(random.random()*1.25)
-                if verbose:
-                    tqdm.write(' > > ' + filename + 'pdf')
+                
+                # Get the saved file size to verify
+                saved_size = os.path.getsize(output_path)
+                tqdm.write(f' >> {current_file} ({format_size(saved_size)})')
+                
+                # Verify sizes match
+                if saved_size != actual_size:
+                    tqdm.write(f' !! Warning: Size mismatch for {current_file}')
+                    tqdm.write(f' !! Expected: {format_size(expected_size)}, Got: {format_size(saved_size)}')
+                
             except Exception as e:
-                logging.error(f'Error saving PDF URL {url_base + url}: {e}')
+                logging.error(f'Error processing {current_file}: {e}')
             
-            jj+=1
             if round(all_files/pause_at) == all_files/pause_at:
                 time.sleep(pause)
-                # os.system('say -v ioana "piiua " -r 250')
-                if (new_files_found != files_found): 
-                    tqdm.write("Files found: " + str(files_found))
+                if (new_files_found != files_found):
+                    tqdm.write(f"Files found: {files_found}")
                     new_files_found = files_found
-            # tqdm.write('   - >  ' + str(ii) + '/' + str(nrows) + ' ' + str(ii+jj) + ' ' + str(jj))
-    ii+=1
-    
-    # time.sleep(random.random()*1.75)
 
 conn.close()
-tqdm.write(' -- done ' + str(len(rows)) + ' days ' + str(ii) + ' secțiuni ' + str(all_files) + ' saved pdfs')
-os.system('say -v ioana "în sfârșit, am gătat ' +  str(all_files) + ' fișiere " -r 250')
+tqdm.write(f' -- done {len(rows)} days, {all_files} saved pdfs')
+os.system(f'say -v ioana "în sfârșit, am gătat {all_files} fișiere " -r 250')
