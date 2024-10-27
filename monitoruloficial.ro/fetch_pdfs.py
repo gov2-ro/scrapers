@@ -18,7 +18,10 @@ sys.path.append("../utils/")
 from common import base_headers
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    # level=logging.DEBUG,
+    # level=logging.INFO,
+    level=logging.CRITICAL,
+    
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler(logfile),
