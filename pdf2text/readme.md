@@ -5,3 +5,4 @@ see also [pdf2txt.xslx](https://docs.google.com/spreadsheets/d/1APEmulzWa7PGgDg_
     - [x] pdf2docx - FAILS?
     - [ ] PyMuPDF
     - [x] pdfminer/pdf2txt
+    - [ ] pdfplumber
