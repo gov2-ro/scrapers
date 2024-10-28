@@ -1,13 +1,13 @@
 """ 
 default script worked but waits forever for large pdf, this shows pbar per each file
 """
-
-db_filename = '../../data/mo/mo.db'
+rootFolder = '../../data/mo/'
+db_filename = rootFolder + 'mo.db'
 table_name = 'dates_lists'
-output_folder = '../../data/mo/pdfs/'
+output_folder = rootFolder + 'pdfs/'
 url_base = 'https://monitoruloficial.ro'
 shy_parts = ["III-a", "IV-a", "VI-a", "VII-a"]
-logfile='../../data/mo/fetch_pdfs.log'
+logfile=rootFolder + 'fetch_pdfs.log'
     
 import sqlite3, json, requests, sys, os, time, random
 import logging
