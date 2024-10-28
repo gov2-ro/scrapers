@@ -111,6 +111,7 @@ async function loadDataset() {
         if (!response.ok) {
             throw new Error(`Failed to load dataset (${response.status} ${response.statusText})`);
         }
+    
 
         const csvContent = await response.text();
         const data = parseCSV(csvContent);
@@ -121,6 +122,23 @@ async function loadDataset() {
 
         // Initialize DataTable
         initializeDataTable(data);
+
+        const response2 = await fetch(`data/matrices/${datasetId}.json`);
+        if (!response2.ok) {
+            throw new Error(`Failed to load dataset (${response2.status} ${response2.statusText})`);
+        }
+
+        // load as json
+        const jsonContent = await response2.json();
+        console.log(jsonContent)   
+        document.getElementById('ziname').innerHTML = jsonContent['matrixName'];
+        document.getElementById('ziobs').innerHTML = 'obs: ' + jsonContent['observatii'];
+        document.getElementById('zidef').innerHTML = '<small class="lh1">' + jsonContent['definitie'] + '</small>';
+        document.getElementById('ziultimaActualizare').innerHTML = 'ultima actualizare: ' + jsonContent['ultimaActualizare'];
+        document.getElementById('ancestors1').innerHTML = '<small>' + jsonContent['ancestors'][1]['code'] + '</small> ' + jsonContent['ancestors'][1]['name'];
+        document.getElementById('ancestors2').innerHTML = '<small>' + jsonContent['ancestors'][2]['code'] + '</small> ' + jsonContent['ancestors'][2]['name'];
+        document.getElementById('ancestors3').innerHTML = '<small>' + jsonContent['ancestors'][3]['code'] + '</small> ' + jsonContent['ancestors'][3]['name'];
+
 
     } catch (error) {
         console.error('Error loading dataset:', error);

@@ -92,12 +92,28 @@
                 font-size: 14px;
             }
         }
+        .bb {border-top:1px dotted #999; padding: .5ex 0 ;}
+        .ancestors {display: inline-block; margin: 0 0 1ex 0;  }
+        .ancestors:after {content: " / "; margin: 0 .5ex; display: inline-block; color: #99C; background-color: whitesmoke;}
+        div.breadcrumb .ancestors:last-child:after {content: "";}
+        .lh1 {line-height: 1; display: inline-block;}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="breadcrumb">
+                <div class="ancestors"><a href="toc.html">#</a></div>
+                <div id="ancestors1" class="ancestors"></div>
+                <div id="ancestors2" class="ancestors"></div>
+                <div id="ancestors3" class="ancestors"></div>
+            </div>
             <h1 id="dataset-title">Dataset Viewer</h1>
+            <h2 id="ziname"></h2>
+            <div id="ziobs" class="bb"></div>
+            <div id="zidef" class="bb"></div>
+            <div id="ziultimaActualizare" class="bb"></div>
+       
         </div>
         <div id="table-container">
             <div class="loading">Loading dataset...</div>

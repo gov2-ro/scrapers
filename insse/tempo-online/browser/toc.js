@@ -83,7 +83,7 @@ function generateTocHtml(node) {
     if (node.level) {
         const levelClass = `level-${node.level}`;
         html += `<div class="${levelClass}">
-            <h${node.level}>
+            <h${node.level} id="x-${node.code}">
                 <span class="code">${node.code}</span>
                 ${node.name}
             </h${node.level}>
@@ -92,12 +92,15 @@ function generateTocHtml(node) {
     
     // Add datasets if any
     if (node.datasets && node.datasets.length > 0) {
+        // console.log(node.datasets)   
         html += '<ul class="datasets">\n';
         node.datasets.sort((a, b) => a.fileName.localeCompare(b.fileName));
         node.datasets.forEach(dataset => {
+            
             html += `  <li>
                 <span class="code"><a href="show.html#${dataset.fileName}">${dataset.fileName}</a></span>
-                ${dataset.matrixName}
+                ${dataset.matrixName} <code>(${convertSize(dataset.filesize)})</code>
+                
             </li>\n`;
         });
         html += '</ul>\n';
@@ -119,6 +122,40 @@ function generateTocHtml(node) {
     
     return html;
 }
+ 
+function convertSize(human) {
+    // const units = ['B', 'K', 'M', 'G', 'T'];
+    // let size = parseFloat(human.replace(/[^0-9.]/g, ''));
+    let size = parseFloat(human.replace(/[^0-9.]/g, ''));
+ 
+    // Convert human-readable string to bytes
+    // um = human.toLowerCase().slice(-1)
+    um = human.slice(-1)
+    switch (um) {
+        case 'B':
+            zz = size / 1000;
+        case 'K':
+            zz = size;
+        case 'M':
+            zz = size * 1000;
+        case 'G':
+            zz = size * 1000 * 1000;
+        case 'T':
+            zz = size * 1000 * 1000 * 1000;
+        default:
+            // throw new Error('Invalid unit');
+            zz = size
+    }
+    ismuch = '  '
+    if(um=='M' || um=='K') {
+        ismuch = ' not-much '
+    }
+    if(um=='M' && size >= 5) {
+        ismuch = ' is-much '
+    }
+
+    return '<span class="size-'+um+ ismuch +'">' + zz + um +'</span>'
+}
 
 // Main function to initialize the table of contents
 async function initializeTableOfContents() {
@@ -126,7 +163,7 @@ async function initializeTableOfContents() {
         // Load CSV files
         const [categoriesResponse, datasetsResponse] = await Promise.all([
             fetch('data/x-categories.csv'),
-            fetch('data/x-datasets.csv')
+            fetch('data/x-datasets-size.csv')
         ]);
 
         if (!categoriesResponse.ok || !datasetsResponse.ok) {

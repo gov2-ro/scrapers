@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .table-of-contents h1,
         .table-of-contents h2,
         .table-of-contents h3 {
@@ -21,25 +22,33 @@
             font-weight: 600;
         }
 
-        .table-of-contents h1 { font-size: 1.8em; }
-        .table-of-contents h2 { font-size: 1.5em; }
-        .table-of-contents h3 { font-size: 1.2em; }
-        
+        .table-of-contents h1 {
+            font-size: 1.8em;
+        }
+
+        .table-of-contents h2 {
+            font-size: 1.5em;
+        }
+
+        .table-of-contents h3 {
+            font-size: 1.2em;
+        }
+
         .table-of-contents ul {
             list-style-type: none;
             padding-left: 20px;
             margin: 0;
         }
-        
+
         .table-of-contents .datasets {
             margin: 10px 0 10px 40px;
             color: #555;
             border-left: 2px solid #eee;
             padding-left: 20px;
         }
-        
+
         .table-of-contents .datasets li {
-            margin: 8px 0;
+            margin:  0;
             font-size: 0.95em;
         }
 
@@ -66,7 +75,7 @@
         }
 
         /* Enhanced visual hierarchy */
-        .categories > li {
+        .categories>li {
             margin: 10px 0;
             padding: 5px 0;
         }
@@ -77,11 +86,49 @@
         }
 
         /* Category indicators */
-        .level-1 { border-left: 3px solid #2196f3; padding-left: 15px; }
-        .level-2 { border-left: 3px solid #4caf50; padding-left: 15px; }
-        .level-3 { border-left: 3px solid #ff9800; padding-left: 15px; }
+        .level-1 {
+            border-left: 3px solid #2196f3;
+            padding-left: 15px;
+        }
+
+        .level-2 {
+            border-left: 3px solid #4caf50;
+            padding-left: 15px;
+        }
+
+        .level-3 {
+            border-left: 3px solid #ff9800;
+            padding-left: 15px;
+        }
+
+
+        .size-B {
+            color: red;
+        }
+
+        /* .size-K{background-color: yellow; text-decoration: underline;} */
+        .size-M {
+            font-weight: bold;
+        }
+
+        .size-G {}
+
+        .is-much {}
+
+        /* .not-much.size-M{background-color: yellow; text-decoration: underline;} */
+        li .code a {
+            text-decoration: none;
+            opacity: .5; padding: 2px 4px;
+        }
+
+        li:has(span.not-much)>.code>a {
+            background-color: rgba(255, 255, 155, .75);
+           font-weight: bold;
+          opacity: 1;
+        }
     </style>
 </head>
+
 <body>
     <div id="toc-container">
         <div class="loading">Loading table of contents...</div>
@@ -89,4 +136,5 @@
 
     <script src="toc.js"></script>
 </body>
+
 </html>
