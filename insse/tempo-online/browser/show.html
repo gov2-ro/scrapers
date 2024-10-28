@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.8/css/jquery.dataTables.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2em;
+            color: #666;
+        }
+
+        .error {
+            color: #d32f2f;
+            padding: 1em;
+            margin: 1em;
+            border: 1px solid #ffcdd2;
+            background: #ffebee;
+            border-radius: 4px;
+        }
+
+        /* DataTables customization */
+        .dataTables_wrapper {
+            padding: 20px 0;
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+            margin-top: 20px !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            padding: 12px;
+        }
+
+        table.dataTable tbody td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dataTables_filter input {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .dataTables_length select {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 0 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            table.dataTable {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="dataset-title">Dataset Viewer</h1>
+        </div>
+        <div id="table-container">
+            <div class="loading">Loading dataset...</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="show.js"></script>
+</body>
+</html>

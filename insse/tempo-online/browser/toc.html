@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Table of Contents</title>
+    <style>
+        .table-of-contents {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .table-of-contents h1,
+        .table-of-contents h2,
+        .table-of-contents h3 {
+            margin: 15px 0 10px 0;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .table-of-contents h1 { font-size: 1.8em; }
+        .table-of-contents h2 { font-size: 1.5em; }
+        .table-of-contents h3 { font-size: 1.2em; }
+        
+        .table-of-contents ul {
+            list-style-type: none;
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .table-of-contents .datasets {
+            margin: 10px 0 10px 40px;
+            color: #555;
+            border-left: 2px solid #eee;
+            padding-left: 20px;
+        }
+        
+        .table-of-contents .datasets li {
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .code {
+            font-family: monospace;
+            color: #666;
+            margin-right: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2em;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .error {
+            color: #d32f2f;
+            padding: 1em;
+            margin: 1em;
+            border: 1px solid #ffcdd2;
+            background: #ffebee;
+            border-radius: 4px;
+        }
+
+        /* Enhanced visual hierarchy */
+        .categories > li {
+            margin: 10px 0;
+            padding: 5px 0;
+        }
+
+        /* Hover effects */
+        .datasets li:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Category indicators */
+        .level-1 { border-left: 3px solid #2196f3; padding-left: 15px; }
+        .level-2 { border-left: 3px solid #4caf50; padding-left: 15px; }
+        .level-3 { border-left: 3px solid #ff9800; padding-left: 15px; }
+    </style>
+</head>
+<body>
+    <div id="toc-container">
+        <div class="loading">Loading table of contents...</div>
+    </div>
+
+    <script src="toc.js"></script>
+</body>
+</html>
