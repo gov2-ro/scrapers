@@ -65,7 +65,7 @@ if response.status_code == 200:
     df['context_name'] = df['context_name'].str.replace(r'<a href=".*?">Comunicate de presa<\/a>', '', regex=True)
 
     # Remove the unwanted columns
-    df = df.drop(columns=['context_childrenUrl', 'context_comment', 'context_url'])
+    # df = df.drop(columns=['context_childrenUrl', 'context_comment', 'context_url'])
 
     
     
