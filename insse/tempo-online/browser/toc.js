@@ -284,7 +284,7 @@ function addSearch() {
         
         const matches = searchIndex.filter(item => 
             item.text.toLowerCase().includes(query)
-        ).slice(0, 10); // Limit to 10 results
+        ).slice(0, 30); // Limit to 10 results
         
         if (matches.length === 0) {
             autocompleteList.style.display = 'none';

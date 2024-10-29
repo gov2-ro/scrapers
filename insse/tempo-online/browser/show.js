@@ -434,6 +434,7 @@ async function initializeChart(data) {
     try {
         await loadChartJS();
         createYearlySumChart(data);
+        initializeCountyVisualization(data);
     } catch (error) {
         console.error('Error initializing chart:', error);
         document.getElementById('zichart').innerHTML = 
@@ -445,8 +446,10 @@ function filterOutRegionalRows(data) {
     // First find column that contains both region and judet
     const headers = data[0];
     const regionColumn = headers.findIndex(header => 
-        header.toLowerCase().includes('regiun') && 
-        header.toLowerCase().includes('judet')
+        header.toLowerCase().includes('regiun') || 
+        header.toLowerCase().includes('judet') ||
+        header.toLowerCase().includes('oras') ||
+        header.toLowerCase().includes('municipi') 
     );
 
     if (regionColumn === -1) {
@@ -461,4 +464,176 @@ function filterOutRegionalRows(data) {
             !row[regionColumn].toLowerCase().includes('regiun')
         )
     ];
+}
+
+function getYearRange(data) {
+    const years = data.map(row => {
+        if (row.Perioade.startsWith('Anul ')) {
+            return parseInt(row.Perioade.split(' ')[1]);
+        } else if (row.Perioade.includes('Trimestrul')) {
+            return parseInt(row.Perioade.split(' ').pop());
+        }
+        return null;
+    }).filter(year => year !== null);
+    
+    return {
+        min: Math.min(...years),
+        max: Math.max(...years)
+    };
+}
+
+function findCountyColumn(headers) {
+    return headers.find(header => 
+        header.toLowerCase().includes('regiun') || 
+        header.toLowerCase().includes('municip') || 
+        header.toLowerCase().includes('oras') || 
+        header.toLowerCase().includes('judete')
+    );
+}
+
+function findPeriodColumn(headers) {
+    return headers.find(header => 
+        header.toLowerCase().includes('perioad') ||
+        header === 'Perioade'  // Add exact match
+    );
+}
+
+function calculateCountyTotals(data, year, countyColumn, periodColumn) {
+    return data.reduce((acc, row) => {
+        const rowYear = row[periodColumn].startsWith('Anul ') ? 
+            row[periodColumn].split(' ')[1] : 
+            row[periodColumn].includes('Trimestrul') ?
+                row[periodColumn].split(' ').pop() : null;
+                
+        if (rowYear === year.toString()) {
+            const county = row[countyColumn];
+            if (!county.toLowerCase().includes('macroregiunea') && 
+                !county.toLowerCase().includes('regiunea')) {
+                acc[county] = (acc[county] || 0) + parseFloat(row.Valoare);
+            }
+        }
+        return acc;
+    }, {});
+}
+
+// Modified county chart creation
+function createCountyChart(data, year, countyColumn, periodColumn) {    
+    const countyTotals = calculateCountyTotals(data, year, countyColumn, periodColumn);
+    const sortedData = Object.entries(countyTotals)
+        .sort((a, b) => b[1] - a[1]);
+    
+    const ctx = document.getElementById('countyBarChart').getContext('2d');
+    
+    if (window.countyChart) {
+        window.countyChart.destroy();
+    }
+    
+    window.countyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sortedData.map(([county]) => county),
+            datasets: [{
+                label: `Values by County (${year})`,
+                data: sortedData.map(([, value]) => value),
+                backgroundColor: '#4299E1',
+                borderColor: '#3182CE',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: 'y',
+            animation: {
+                duration: 0 // Remove animations
+            },
+            hover: {
+                animationDuration: 0 // Remove hover animations
+            },
+            responsiveAnimationDuration: 0, // Remove resize animations
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.x.toLocaleString();
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString();
+                        }
+                    } 
+                },
+                y: {
+                    ticks: {
+                        autoSkip: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initializeCountyVisualization(data) {
+    const headers = Object.keys(data[0]);
+    const countyColumn = findCountyColumn(headers);
+    const periodColumn = findPeriodColumn(headers);
+    
+    if (!countyColumn || !periodColumn) {
+        console.log('Missing required columns:', { countyColumn, periodColumn });
+        return;createCountyChartContainer
+    }
+    
+    // Create container and get elements
+    createCountyChartContainer();
+    const slider = document.getElementById('year-slider');
+    const yearLabel = document.getElementById('year-label');
+    
+    // Setup year slider
+    const yearRange = getYearRange(data);
+    slider.min = yearRange.min;
+    slider.max = yearRange.max;
+    slider.value = yearRange.max; // Default to most recent year
+    slider.step = 1;
+    
+    // Update label
+    yearLabel.textContent = `Select Year: ${slider.value}`;
+    
+    // Create initial chart
+    createCountyChart(data, slider.value, countyColumn, periodColumn);
+    
+    // Handle slider changes
+    slider.addEventListener('input', (e) => {
+        yearLabel.textContent = `Select Year: ${e.target.value}`;
+        createCountyChart(data, e.target.value, countyColumn, periodColumn);
+    });
+}
+function createCountyChartContainer() {
+    const container = document.createElement('div');
+    container.id = 'county-chart-container';
+    container.style.marginTop = '2rem';
+    container.innerHTML = `
+        <div id="year-slider-container" style="margin: 1rem 0;">
+            <label for="year-slider" id="year-label" style="display: block; margin-bottom: 0.5rem;"></label>
+            <input type="range" id="year-slider" style="width: 100%;">
+        </div>
+        <div style="height: 45em;"> <!-- Fixed height container -->
+            <canvas id="countyBarChart"></canvas>
+        </div>
+    `;
+    
+    // Insert after the yearly chart
+    const yearlyChart = document.getElementById('zichart');
+    yearlyChart.parentNode.insertBefore(container, yearlyChart.nextSibling);
+    
+    return container;
 }
