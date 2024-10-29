@@ -4,12 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta http-equiv="Content-Language" content="ro">
     <title>Tempo Online (INSSE) &middot; gov2.ro</title>
     <meta property="og:title" content="Tempo Online (INSSE) &middot; gov2.ro" />
     <meta property="og:url" content="https://tempo-online.gov2.ro" />
-    <meta property="og:image" content="https://tempo-online.gov2.ro/assets/img/insse-tempo-online-gov2.png"/>
+    <meta property="og:image" content="https://tempo-online.gov2.ro/assets/img/insse-tempo-online-gov2.png" />
     <meta property="og:description" content="INSSE Tempo Online, but nicer." />
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
         .table-of-contents {
             font-family: sans-serif;
             line-height: 1.4;
@@ -22,7 +32,9 @@
         .table-of-contents h2,
         .table-of-contents h3 {
             margin: 5px 0 3px 0;
-            color: #333; line-height: 1.2;            font-weight: 600;
+            color: #333;
+            line-height: 1.2;
+            font-weight: 600;
         }
 
         .table-of-contents h1 {
@@ -52,7 +64,7 @@
         }
 
         .table-of-contents .datasets li {
-            margin:  0;
+            margin: 0;
             font-size: 0.95em;
         }
 
@@ -80,8 +92,8 @@
 
         /* Enhanced visual hierarchy */
         .categories>li {
-            margin:  0;
-            padding:  0;
+            margin: 0;
+            padding: 0;
         }
 
         /* Hover effects */
@@ -94,7 +106,8 @@
             /* border-left: 3px solid #2196f3; */
             border-bottom: 3px solid #2196f3;
             padding-left: 15px;
-            margin-bottom: 2ex;
+            margin-bottom: 1em;
+            margin-top: 1em;
             padding-bottom: 1ex;
 
         }
@@ -104,33 +117,49 @@
             padding-left: 15px;
             /* margin-top: 1.5em; */
         }
-        .lx-1 {padding-bottom: 3em !important;}
- 
+
+        .lx-1 {
+            padding-bottom: 3em !important;
+        }
+
         .level-3 {
             /* border-left: 3px solid #ff9800; */
             padding-left: 15px;
         }
+
         @media screen and (min-width: 800px) {
-            .level-1 + .categories {
-            column-count: 2;
+            .level-1+.categories {
+                column-count: 2;
+            }
         }
-        }
+
         @media screen and (min-width: 1660px) {
-            .level-1 + .categories {
-            column-count: 3;
+            .level-1+.categories {
+                column-count: 3;
+            }
         }
-        }
+
         @media screen and (max-width: 600px) {
-            .level-1 {padding-bottom: 1em !important;}
-            .lx-1 {padding-bottom: 1em !important;}
-            
+            .level-1 {
+                padding-bottom: 1em !important;
+            }
+
+            .lx-1 {
+                padding-bottom: 1em !important;
+            }
+
         }
 
-        .lx-1 {break-inside: avoid;}
+        .lx-1 {
+            break-inside: avoid;
+        }
 
-        h3 {font-weight: normal !important;}
+        h3 {
+            font-weight: normal !important;
+        }
+
         /* h3:after{content: " \25BC "; color: #CCF; cursor: pointer;} */
-        
+
         .size-B {
             color: red;
         }
@@ -147,105 +176,188 @@
         /* .not-much.size-M{background-color: yellow; text-decoration: underline;} */
         li .code a {
             text-decoration: none;
-            opacity: .5; padding: 2px 4px;
+            opacity: .5;
+            padding: 2px 4px;
         }
-        li {opacity: .45;}
-        li:has(span.not-much) {opacity: 1;}
+
+        li {
+            opacity: .45;
+        }
+
+        li:has(span.not-much) {
+            opacity: 1;
+        }
+
         li:has(span.not-much)>.code>a {
             background-color: rgba(255, 255, 155, .75);
-           font-weight: bold;
-          opacity: 1;
+            font-weight: bold;
+            opacity: 1;
         }
-        .datasets a {cursor: default; }
-        .lx-2 .datasets {display: none;}
-        .lx-2 h3 {cursor: pointer;}
-        /* .lx-2 h3:after{content: " \25BC "; color: #CCF; cursor: pointer;} */
-        .lx-2:hover .datasets {display: block; position: absolute; margin-top: -5em; background-color: white; border:1px solid #DDD; padding: 1ex; 
-        box-shadow: 1px 2px 6px rgba(0,0,0,.2); 
-        }
-        .lx-2:hover h3 {background-color: #333; color: whitesmoke; outline: 4px solid #333;}
-        .lx-2:hover h3 .code { color: rgba(255,255,255,.5);  }
-        /* .lx-2:hover  h3 .code {background-color: #ffcdd2;} */
-        div.level-3 {display: inline-block;}
-        .lx-2 ul.datasets {margin: 0 !important; padding-left: 1em !important; }
-        .datasets li:hover a.ccode {outline: 1px solid red;  }
-        .datasets li a.cname {text-decoration: none; color: #333;}
-        .datasets li:has(.not-much) a {cursor: pointer; }
-        .datasets li:not(:has(.not-much)) a {pointer-events: none; }
 
+        .datasets a {
+            cursor: default;
+        }
+
+        .lx-2 .datasets {
+            display: none;
+        }
+
+        .lx-2 h3 {
+            cursor: pointer;
+        }
+
+        /* .lx-2 h3:after{content: " \25BC "; color: #CCF; cursor: pointer;} */
+        .lx-2:hover .datasets {
+            display: block;
+            position: absolute;
+            margin-top: -5em;
+            background-color: white;
+            border: 1px solid #DDD;
+            padding: 1ex;
+            box-shadow: 1px 2px 6px rgba(0, 0, 0, .2);
+        }
+
+        .lx-2:hover h3 {
+            background-color: #333;
+            color: whitesmoke;
+            outline: 4px solid #333;
+        }
+
+        .lx-2:hover h3 .code {
+            color: rgba(255, 255, 255, .5);
+        }
+
+        /* .lx-2:hover  h3 .code {background-color: #ffcdd2;} */
+        div.level-3 {
+            display: inline-block;
+        }
+
+        .lx-2 ul.datasets {
+            margin: 0 !important;
+            padding-left: 1em !important;
+        }
+
+        .datasets li:hover a.ccode {
+            outline: 1px solid red;
+        }
+
+        .datasets li a.cname {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .datasets li:has(.not-much) a {
+            cursor: pointer;
+        }
+
+        .datasets li:not(:has(.not-much)) a {
+            pointer-events: none;
+        }
+        #ctgs {position: fixed; bottom: 0; right: 1ex;  font-family: "Arial Narrow"; text-align: right; width: 99%; margin: 0 auto; z-index: 3; }
+        #ctgs a {display: inline-block; padding: 1ex 1.5ex;  color: whitesmoke; background-color: #333; outline: 1px solid #CCB;   text-decoration: none; 
+            box-shadow: 1px 2px 6px rgba(0, 0, 0, .2); 
+            border-top-left-radius: 4px; margin: 0 2px; border-bottom: 1px solid #AAA;
+            border-top-right-radius: 4px;  
+         }
+        #ctgs a:hover {background-color: rgba(0, 0, 55, 0.75); color: yellow; border-bottom: 1px solid yellow;}
+        @media screen and (max-width: 1520px) {
+            #ctgs {max-width: 70em;}
+        }
+        
+        @media screen and (max-width: 980px) {
+            #ctgs {
+                /* position: relative; */
+            font-size: 0.66em;
+            }
+            #ctgs a:hover {
+                transform: scale(1.2);
+                background-color: rgb(0, 0, 55);
+            }
+        }
         /* - - - - - - - - - - - - - - - - - - - - -  
                 search box 
         - - - - - - - - - - - - - - - - - - - - -  */
 
-.search-container {
-    position: fixed;
-    top: 1ex; right: 2em; 
-    max-width: 40em;
-    width: 40em;
-}
+        .search-container:hover {opacity: 1;}
+        .search-container {
+            position: fixed;
+            top: 2px; z-index: 2;
+            left: 33vw;
+            /* right: 1em; */
+            /* margin-right: 1em; */
+            width: 30vw;
+            max-width: 40em;
+            opacity: .75;
+        }
 
-.search-input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-}
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 3px solid #AAE;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
 
-.autocomplete-items {
-    font-family: "Arial Narrow", sans-serif;
-    position: absolute;
-    border: 1px solid #ddd;
-    border-top: none;
-    z-index: 99;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: white;
-    border-radius: 0 0 4px 4px;
-    max-height: 300px;
-    overflow-y: auto;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+        .autocomplete-items {
+            font-family: "Arial Narrow", sans-serif;
+            position: absolute;
+            border: 1px solid #ddd;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-radius: 0 0 4px 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-.autocomplete-item {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #f4f4f4;
-}
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f4f4f4;
+        }
 
-.autocomplete-item:last-child {
-    border-bottom: none;
-}
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
 
-.autocomplete-item:hover {
-    background-color: #f9f9f9;
-}
+        .autocomplete-item:hover {
+            background-color: #f9f9f9;
+        }
 
-.autocomplete-item .type-indicator {
-    display: inline-block;
-    padding: 2px 6px;
-    margin-right: 8px;
-    border-radius: 3px;
-    font-size: 12px;
-    color: white;
-}
+        .autocomplete-item .type-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            margin-right: 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: white;
+        }
 
-.type-header {
-    background-color: #4299E1;
-}
+        .type-header {
+            background-color: #4299E1;
+        }
 
-.type-dataset {
-    background-color: #48BB78;
-}
+        .type-dataset {
+            background-color: #48BB78;
+        }
+   
     </style>
 </head>
 
 <body>
+   
     <div id="toc-container">
         <div class="loading">Loading table of contents...</div>
     </div>
-
+    <div id="ctgs">
+        <a href="#x-1"><small>A</small> STATISTICA SOCIALA</a><a href="#x-2"><small>B</small> STATISTICA ECONOMICA</a><a href="#x-3"><small>C</small>FINANTE</a><a href="#x-4"><small>D</small> JUSTITIE</a><a href="#x-5"><small>E</small> MEDIU INCONJURATOR</a><a href="#x-6"><small>F</small>
+            UTILITATI PUBLICE SI ADMINISTRAREA TERITORIULUI</a><a href="#x-7"><small>G</small> DEZVOLTARE DURABILA  (Orizont 2020)</a><a href="#x-8"><small>H</small> DEZVOLTARE DURABILA  (Tinte 2030)</a>
+    </div>
     <script src="toc.js"></script>
 </body>
 

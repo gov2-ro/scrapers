@@ -255,7 +255,7 @@ function addSearch() {
     const searchContainer = document.createElement('div');
     searchContainer.className = 'search-container';
     searchContainer.innerHTML = `
-        <input type="text" class="search-input" placeholder="Search headers and datasets...">
+        <input type="text" class="search-input" placeholder="Caută în capitole și seturi de date">
         <div class="autocomplete-items" style="display: none;"></div>
     `;
     
