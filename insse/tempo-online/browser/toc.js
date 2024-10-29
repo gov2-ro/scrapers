@@ -98,8 +98,8 @@ function generateTocHtml(node) {
         node.datasets.forEach(dataset => {
             
             html += `  <li>
-                <span class="code"><a href="show.html#${dataset.fileName}">${dataset.fileName}</a></span>
-                ${dataset.matrixName} <code>(${convertSize(dataset.filesize)})</code>
+                <span class="code"><a class="ccode" href="dataset.html#${dataset.fileName}">${dataset.fileName}</a></span>
+                <a class="cname" href="dataset.html#${dataset.fileName}">${dataset.matrixName}</a> <code>(${convertSize(dataset.filesize)})</code>
                 
             </li>\n`;
         });
@@ -113,7 +113,7 @@ function generateTocHtml(node) {
         
         html += '<ul class="categories">\n';
         node.children.forEach(child => {
-            html += '<li>\n';
+            html += '<li class="lx-' + node.level +'">\n';
             html += generateTocHtml(child);
             html += '</li>\n';
         });
@@ -147,10 +147,10 @@ function convertSize(human) {
             zz = size
     }
     ismuch = '  '
-    if(um=='M' || um=='K') {
+    if(um=='M' || um=='K' || (um=='B' && size >= 500)) {
         ismuch = ' not-much '
     }
-    if(um=='M' && size >= 5) {
+    if(um=='M' && size >= 4.2) {
         ismuch = ' is-much '
     }
 
@@ -197,6 +197,7 @@ async function initializeTableOfContents() {
 
         // Insert into document
         document.getElementById('toc-container').innerHTML = tocHtml;
+        addSearch();
 
     } catch (error) {
         console.error('Error loading table of contents:', error);
@@ -207,6 +208,160 @@ async function initializeTableOfContents() {
             </div>
         `;
     }
+}
+
+// Add required CSS for autocomplete
+// const style = document.createElement('style');
+// style.textContent = ``;
+// document.head.appendChild(style);
+
+// Function to build search index
+function buildSearchIndex() {
+    const searchItems = [];
+    
+    // Index headers
+    document.querySelectorAll('[id^="x-"]').forEach(header => {
+        const code = header.querySelector('.code')?.textContent || '';
+        const name = header.textContent.replace(code, '').trim();
+        searchItems.push({
+            type: 'header',
+            code,
+            name,
+            element: header,
+            text: `${code} ${name}`,
+            id: header.id
+        });
+    });
+    
+    // Index dataset links
+    document.querySelectorAll('.datasets li').forEach(item => {
+        const code = item.querySelector('.ccode')?.textContent || '';
+        const name = item.querySelector('.cname')?.textContent || '';
+        const link = item.querySelector('a')?.href;
+        searchItems.push({
+            type: 'dataset',
+            code,
+            name,
+            link,
+            text: `${code} ${name}`
+        });
+    });
+    
+    return searchItems;
+}
+
+// Function to add search functionality
+function addSearch() {
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'search-container';
+    searchContainer.innerHTML = `
+        <input type="text" class="search-input" placeholder="Search headers and datasets...">
+        <div class="autocomplete-items" style="display: none;"></div>
+    `;
+    
+    // Insert before the table of contents
+    const tocContainer = document.getElementById('toc-container');
+    tocContainer.parentNode.insertBefore(searchContainer, tocContainer);
+    
+    const searchInput = searchContainer.querySelector('.search-input');
+    const autocompleteList = searchContainer.querySelector('.autocomplete-items');
+    const searchIndex = buildSearchIndex();
+    
+    // Function to highlight match in text
+    function highlightMatch(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<strong>$1</strong>');
+    }
+    
+    // Function to handle search and show results
+    function handleSearch() {
+        const query = searchInput.value.toLowerCase();
+        if (!query) {
+            autocompleteList.style.display = 'none';
+            return;
+        }
+        
+        const matches = searchIndex.filter(item => 
+            item.text.toLowerCase().includes(query)
+        ).slice(0, 10); // Limit to 10 results
+        
+        if (matches.length === 0) {
+            autocompleteList.style.display = 'none';
+            return;
+        }
+        
+        autocompleteList.innerHTML = matches.map(item => `
+            <div class="autocomplete-item" data-type="${item.type}" ${
+                item.type === 'header' ? `data-id="${item.id}"` :
+                item.type === 'dataset' ? `data-link="${item.link}"` : ''
+            }>
+                <span class="type-indicator type-${item.type}">${item.type}</span>
+                ${highlightMatch(item.code, query)} - ${highlightMatch(item.name, query)}
+            </div>
+        `).join('');
+        
+        autocompleteList.style.display = 'block';
+    }
+    
+    // Handle click on autocomplete item
+    autocompleteList.addEventListener('click', (e) => {
+        const item = e.target.closest('.autocomplete-item');
+        if (!item) return;
+        
+        if (item.dataset.type === 'header') {
+            const element = document.getElementById(item.dataset.id);
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Add a brief highlight effect
+            element.style.backgroundColor = '#fff3cd';
+            setTimeout(() => element.style.backgroundColor = '', 2000);
+        } else if (item.dataset.type === 'dataset') {
+            window.location.href = item.dataset.link;
+        }
+        
+        searchInput.value = '';
+        autocompleteList.style.display = 'none';
+    });
+    
+    // Handle input events
+    searchInput.addEventListener('input', handleSearch);
+    
+    // Close autocomplete when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchContainer.contains(e.target)) {
+            autocompleteList.style.display = 'none';
+        }
+    });
+    
+    // Handle keyboard navigation
+    searchInput.addEventListener('keydown', (e) => {
+        const items = autocompleteList.getElementsByClassName('autocomplete-item');
+        const activeItem = document.querySelector('.autocomplete-item.active');
+        let index = Array.from(items).indexOf(activeItem);
+        
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (index < items.length - 1) index++;
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                if (index > 0) index--;
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (activeItem) activeItem.click();
+                return;
+            default:
+                return;
+        }
+        
+        Array.from(items).forEach(item => item.classList.remove('active'));
+        if (items[index]) {
+            items[index].classList.add('active');
+            items[index].scrollIntoView({ block: 'nearest' });
+        }
+    });
 }
 
 // Initialize when the document is ready

@@ -16,7 +16,66 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 12,2,3. IMIGRANTI CU STABILIREA DOMICILIULUI PERMANENT (IMIGRANTI DEFINITIVI),1230,context,,context,
 12,2,4. EMIGRANTI CU STABILIREA RESEDINTEI OBISNUITE (EMIGRANTI TEMPORARI),1240,context,,context,
 12,2,5. IMIGRANTI CU STABILIREA RESEDINTEI OBISNUITE (IMIGRANTI TEMPORARI),1250,context,,context,
-1,1,"A.4 FORTA DE MUNCA  <a href=""https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=14&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"">Forta de munca si castiguri salariale-Comunicate de presa</a><a href=""https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=14a&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"">Ocuparea si somajul-Comunicate de presa</a>",15,context,,context,
+1,1,"A.4 FORTA DE MUNCA  <a href=""https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=14&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"">Forta de munca si castiguri salariale-Comunicate de presa</a>
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+                       
+<a href=""https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=14a&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"">Ocuparea si somajul-Comunicate de presa</a>
+
+",15,context,,context,
 15,2,1. RESURSE DE MUNCA SI UTILIZAREA LOR,1505,context,,context,
 15,2,2. POPULATIA ACTIVA CIVILA - BALANTA FORTEI DE MUNCA,1506,context,,context,
 15,2,3. POPULATIA OCUPATA CIVILA - BALANTA FORTEI DE MUNCA,1507,context,,context,
@@ -59,7 +118,8 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 25,2,5. ABSOLVENTI,2509,context,,context,
 1,1,A.8 EDUCATIA ADULTILOR,27,context,,context,
 27,2,1. EDUCATIA ADULTILOR,28,context,,context,
-1,1,"A.9 SANATATE  ",30,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=18&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+1,1,"A.9 SANATATE  
+",30,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=18&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 30,2,1. INFRASTRUCTURA SANITARA,3005,context,,context,
 30,2,2. PERSONAL MEDICO - SANITAR,3010,context,,context,
 30,2,3. ASISTENTA SANITARA,3015,context,,context,
@@ -81,7 +141,8 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 35,2,5. CONTURI NATIONALE REGIONALE,3515,context,,context,
 35,2,6. PRODUSUL INTERN BRUT TRIMESTRIAL,3520,context,,context,
 35,2,"7. ACTIVELE NEFINANCIARE PE TIPURI, PE RAMURI DE ACTIVITATE SI PE SECTOARE",3530,context,,context,
-2,1,"B.2 CERCETARE, DEZVOLTARE, INOVARE  ",37,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=2&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.2 CERCETARE, DEZVOLTARE, INOVARE  
+",37,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=2&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 37,2,1. UNITATI DE CERCETARE - DEZVOLTARE,2600,context,,context,
 37,2,2. SALARIATI DIN ACTIVITATEA DE CERCETARE-DEZVOLTARE,2601,context,,context,
 37,2,3. CHELTUIELI DIN ACTIVITATEA DE CERCETARE-DEZVOLTARE,2602,context,,context,
@@ -97,7 +158,8 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 40,2,3. INDICII PRETURILOR PRODUCTIEI INDUSTRIALE,4020,context,,context,
 40,2,4. PRETURILE PRODUSELOR AGRICOLE,4050,context,,context,
 40,2,5. PRETURILE PRODUCTIEI PENTRU SERVICII,4060,context,,context,
-2,1,"B.5 AGRICULTURA  ",45,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=1&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.5 AGRICULTURA  
+",45,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=1&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 45,2,1. FONDUL FUNCIAR,4505,context,,context,
 45,2,2. BAZA TEHNICO - MATERIALA A AGRICULTURII,4510,context,,context,
 45,2,3. SUPRAFATA SI PRODUCTIA AGRICOLA VEGETALA,4515,context,,context,
@@ -107,17 +169,23 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 2,1,B.6 SILVICULTURA  ,47,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=19&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 47,2,1. SILVICULTURA,4525,context,,context,
 47,2,2. LUCRARI REALIZATE DE ALTE INSTITUTII,4550,context,,context,
-2,1,"B.7 INDUSTRIE  ",50,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=10&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.7 INDUSTRIE  
+",50,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=10&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 50,2,1. INDUSTRIE,5010,context,,context,
-2,1,"B.8 ENERGIE  ",51,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=9&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.8 ENERGIE  
+",51,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=9&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 51,2,1. ENERGIE,5020,context,,context,
-2,1,"B.9 CONSTRUCTII  ",52,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=5&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.9 CONSTRUCTII  
+",52,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=5&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 52,2,1. CONSTRUCTII,5025,context,,context,
-2,1,"B.10 LOCUINTE  ",53,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=5&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.10 LOCUINTE  
+",53,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=5&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 53,2,1. LOCUINTE,5030,context,,context,
-2,1,"B.11 INVESTITII  ",54,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=12&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.11 INVESTITII  
+",54,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=12&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 54,2,1. INVESTITII,5035,context,,context,
-2,1,"B.12 INTREPRINDERI  ",55,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=11&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.12 INTREPRINDERI  
+",55,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=11&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 55,2,1. STATISTICA INTREPRINDERILOR,7010,context,,context,
 55,2,2. DEMOGRAFIA INTREPRINDERILOR,7020,context,,context,
 2,1,B.13 REGISTRUL STATISTIC AL INTREPRINDERILOR,56,context,,context,
@@ -129,15 +197,21 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 57,2,4. TRANSPORT FEROVIAR,5510,context,,context,
 57,2,5. TRANSPORT MARITIM SI PE CAI NAVIGABILE INTERIOARE,5515,context,,context,
 57,2,6. TRANSPORT AERIAN,5520,context,,context,
-2,1,"B.15 POSTA SI TELECOMUNICATII  ",58,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.15 POSTA SI TELECOMUNICATII  
+",58,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 58,2,1. POSTA SI TELECOMUNICATII,5530,context,,context,
-2,1,"B.16 COMERT INTERIOR  ",60,context,,context,https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10
+2,1,"B.16 COMERT INTERIOR  
+",60,context,,context,https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10
 60,2,1. COMERT INTERIOR,6005,context,,context,
-2,1,"B.17 COMERT INTERNATIONAL  ",62,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=3&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.17 COMERT INTERNATIONAL  
+",62,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=3&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 62,2,1. COMERT INTERNATIONAL,6020,context,,context,
-2,1,"B.18 TURISM ",63,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=22&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.18 TURISM 
+
+",63,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=22&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 63,2,1. TURISM,6025,context,,context,
-2,1,"B.19 SERVICII  ",64,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+2,1,"B.19 SERVICII  
+",64,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=4&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 64,2,1. SERVICII,6030,context,,context,
 0,0,C. FINANTE,3,context,,context,
 3,1,C.1 FINANTE,65,context,,context,
@@ -146,7 +220,8 @@ parentCode,level,context_name,context_code,context_childrenUrl,context_comment,c
 4,1,D.1 JUSTITIE,66,context,,context,
 66,2,1. JUSTITIE,8005,context,,context,
 0,0,E. MEDIU INCONJURATOR,5,context,,context,
-5,1,"E.1 MEDIUL INCONJURATOR  ",67,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=13&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
+5,1,"E.1 MEDIUL INCONJURATOR  
+",67,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=13&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
 67,2,1. MEDIUL INCONJURATOR,7009,context,,context,
 0,0,F. UTILITATI PUBLICE SI ADMINISTRAREA TERITORIULUI,6,context,,context,
 6,1,F.1 UTILITATI PUBLICE ,70,context,,context,"https://insse.ro/cms/ro/comunicate-de-presa-view?field_categorie_value_i18n%5B%5D=23&field_cuvinte_cheie_value=&created=All&items_per_page=10"" target=""_blank"
