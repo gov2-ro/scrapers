@@ -1,10 +1,17 @@
 """ 
 http://statistici.insse.ro:8077/tempo-ins/context/
  """
+
+lang = "ro"
+lang = "en"
+csv_filename = "data/1-indexes/"+ lang +"/context.csv"
+
+url = 'http://statistici.insse.ro:8077/tempo-ins/context/?lang=' + lang
+
 import requests
 import pandas as pd
 
-csv_filename = "data/context.csv"
+
 
 headers = {
     'Accept': 'application/json, text/plain, */*',
@@ -15,8 +22,6 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
 }
 
-# Define the URL
-url = 'http://statistici.insse.ro:8077/tempo-ins/context/'
 
 # Send the GET request with the specified headers
 response = requests.get(url, headers=headers, verify=False)

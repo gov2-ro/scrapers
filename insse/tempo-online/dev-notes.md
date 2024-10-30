@@ -1,13 +1,21 @@
 see [dev notes](https://docs.google.com/document/d/1FY_1Bb2RF8JGoplnBvvIBTN-PkCfYnGR) / gDoc
 
+------
+
+<mark>obsolete</mark>
 
 `1fetch-context.py` → context.csv → `3fetch-dataset-list.py` → context/<id>.json
 `2fetch-matrices.py` → matrices.csv → `4fetch-meta.py` → matrices/<id>.json → `5db.py` →  datasets.db → `6fetch-table.py`
+
+more like:
+`2fetch-matrices.py` → matrices.csv → `4fetch-meta.py` → matrices/<id>.json → `6fetch-table-csv.py` → datasets csvs
 
 context→ code == matrices→code
 used for datasets hierarchy 
 
 context/<context-id>.json keeps relationships between ctgs/parents and data in matrices/<matrix-id>.json
+
+ignored columns and conversion rules in config.json - with converters per dataset or individual receipes/<datasetId>.json
 
 
 `6fetch-table.py`

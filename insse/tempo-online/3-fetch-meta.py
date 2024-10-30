@@ -1,3 +1,7 @@
+
+lang = 'ro'
+lang = 'en'
+
 """ 
 loops dataset list csv, fetches fields for each and saves as json, per dataset
  """
@@ -8,9 +12,10 @@ from tqdm import tqdm
 import time
 
 # Define the paths
-csv_file = 'data/matrices.csv'
-output_directory = 'data/matrices'
-error_log_file = 'data/error.log'
+# csv_file = 'data/matrices.csv'
+csv_file = 'data/1-indexes/'+lang+'/matrices.csv'
+output_directory = 'data/2-metas/'+lang
+error_log_file = 'data/2-metas/error.log'
 zitimeout = 10
 sleeptime = 0.3
 

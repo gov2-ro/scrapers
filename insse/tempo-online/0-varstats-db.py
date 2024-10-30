@@ -1,10 +1,13 @@
+lang = "ro"
+json_directory = 'data/2-dataset-metas/' + lang
+database_file = 'data/datasets-' + lang + '.db'
+
 import sqlite3
 import json
 import os
 
-# Define the paths
-json_directory = 'data/matrices'
-database_file = 'data/datasets.db'
+
+
 
 # Create or connect to the SQLite database
 conn = sqlite3.connect(database_file)

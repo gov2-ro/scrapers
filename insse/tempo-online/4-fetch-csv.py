@@ -1,3 +1,9 @@
+lang = "ro"
+lang = "en"
+
+input_folder="data/2-metas/" + lang
+output_folder="data/3-datasets/" + lang
+
 import requests
 import json
 from urllib3.exceptions import InsecureRequestWarning
@@ -99,7 +105,7 @@ def fetch_insse_pivot_data(matrix_code: str, matrix_def: Dict, output_dir: str) 
         response.raise_for_status()
         
         # Save CSV response
-        output_file = os.path.join(output_dir, f"{matrix_code}_pivot.csv")
+        output_file = os.path.join(output_dir, f"{matrix_code}.csv")
         with open(output_file, 'wb') as f:
             f.write(response.content)
         logger.info(f"Saved pivot data to {output_file}")
@@ -154,7 +160,4 @@ def process_matrices_folder(input_folder: str, output_folder: str) -> None:
     logger.info("Finished processing all matrix files")
 
 if __name__ == "__main__":
-    process_matrices_folder(
-        input_folder="data/matrices",
-        output_folder="data/csv"
-    )
+    process_matrices_folder(        input_folder,        output_folder)
