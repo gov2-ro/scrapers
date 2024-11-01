@@ -25,5 +25,5 @@
 
 -----
 
-see also [dev notes](dev-notes.md) 
+see also [dev notes](dev-notes.md), [metadata](http://80.96.186.4:81/metadata/public.htm) 
 
