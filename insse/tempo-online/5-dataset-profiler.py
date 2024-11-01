@@ -104,9 +104,12 @@ class CSVProfiler:
 
 def process_directory(input_dir: str, output_dir: str):
     """Process all CSV files in a directory and generate profiles"""
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
+    input_path = Path(input_dir).resolve()
+    output_path = Path(output_dir).resolve()
     output_path.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Input directory: {input_path}")
+    print(f"Output directory: {output_path}")
     
     csv_files = list(input_path.glob('*.csv'))
     total_files = len(csv_files)
@@ -125,14 +128,19 @@ def process_directory(input_dir: str, output_dir: str):
             output_file = output_path / f"{csv_file.stem}_profile.json"
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(profile, f, indent=2, cls=NumpyEncoder)
+            print(f"  Saved profile to: {output_file}")
                 
         except Exception as e:
             print(f"Error processing {csv_file.name}: {str(e)}")
 
 if __name__ == "__main__":
-    input_dir = "data/3-datasets/ro"
-    input_dir = "/Users/pax/devbox/gov2/scrapers2/insse/tempo-online/data/_obsolete/csv"
-    output_dir = "4-meta/ro"
+    # Get the absolute path of the script's directory
+    script_dir = Path(__file__).parent.resolve()
     
-    process_directory(input_dir, output_dir)
-    print("Processing complete!")
+    # Construct absolute paths for input and output directories
+    input_dir = script_dir / "data/_obsolete/csv"
+    output_dir = script_dir / "data/4-meta/ro"
+    
+    process_directory(str(input_dir), str(output_dir))
+    print("\nProcessing complete!")
+    print(f"Profiles have been saved to: {output_dir}")
