@@ -1,9 +1,14 @@
 """ 
-http://statistici.insse.ro:8077/tempo-ins/context/
+fetch http://statistici.insse.ro:8077/tempo-ins/context/
+
+# TODO:
+- [ ] remove html <a links>
+
+
  """
 
 lang = "ro"
-lang = "en"
+# lang = "en"
 csv_filename = "data/1-indexes/"+ lang +"/context.csv"
 
 url = 'http://statistici.insse.ro:8077/tempo-ins/context/?lang=' + lang
@@ -25,6 +30,10 @@ headers = {
 
 # Send the GET request with the specified headers
 response = requests.get(url, headers=headers, verify=False)
+
+# save response to file
+with open("data/1-indexes/"+ lang +"/context.json", "w") as file:
+    file.write(response.text)
 
 # Send an HTTP GET request to fetch the JSON data
 response = requests.get(url)
@@ -67,11 +76,23 @@ if response.status_code == 200:
     df['Comunicate_de_presa_link'] = df['context_name'].str.extract(r'<a href="(.*?)">Comunicate de presa<\/a>')
     # Remove the "Comunicate de presa" part from the "context_name" column
     # df['context_name'] = df['context_name'].str.replace(r'<a href=".*?">Comunicate de presa<\/a>', '')
-    df['context_name'] = df['context_name'].str.replace(r'<a href=".*?">Comunicate de presa<\/a>', '', regex=True)
+    # df['context_name'] = df['context_name'].str.replace(r'<a href=".*?">Comunicate de presa<\/a>', '', regex=True)
+
+    # Extract all links from context_name into a new column
+    df['context_links'] = df['context_name'].str.findall(r'<a href="(.*?)".*?<\/a>')
+
+    # Clean up newlines and carriage returns from context_name
+    df['context_name'] = df['context_name'].str.replace(r'[\n\r]', ' ', regex=True)
+
+    # Remove all link tags from context_name
+    df['context_name'] = df['context_name'].str.replace(r'<a href=".*?">.*?<\/a>', '', regex=True)
+
+    # Clean up any multiple spaces that might have been created
+    df['context_name'] = df['context_name'].str.strip().str.replace(r'\s+', ' ', regex=True)
 
     # Remove the unwanted columns
     # df = df.drop(columns=['context_childrenUrl', 'context_comment', 'context_url'])
-
+    df = df.drop(columns=['context_childrenUrl', 'context_comment', 'context_url', 'Comunicate_de_presa_link', 'context_links'])
     
     
     df.to_csv(csv_filename, index=False)
