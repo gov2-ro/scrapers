@@ -16,101 +16,111 @@ lang = "en"
 import os
 import csv
 import sqlite3
-from pathlib import Path
+import logging
 
-import os
-import csv
-import sqlite3
-from pathlib import Path
-
-# Configuration
+# Configuration variables
 input_csvs = "data/_obsolete/csv/"
 db_path = "data/_obsolete/datasets.db"
 db_table = 'fields'
 compacted_folder = "data/_obsolete/compact-datasets/"
-log_file = "data/_obsolete/compaction_log.txt"
 
-def log_message(message):
-    with open(log_file, 'a') as log:
-        log.write(message + "\n")
+# Setup logging
+logging.basicConfig(filename='data/_obsolete/compaction.log', level=logging.INFO,
+                    format='%(asctime)s [%(levelname)s] %(message)s')
 
-def compact_dataset(dataset, db_conn, cursor):
-    input_file_path = os.path.join(input_csvs, f"{dataset}.csv")
-    compacted_file_path = os.path.join(compacted_folder, f"{dataset}.csv")
-
-    # Check if already compacted
-    if os.path.exists(compacted_file_path):
-        log_message(f"Skipped {dataset}, already compacted.")
-        return
-
-    # Check if input file exists
-    if not os.path.exists(input_file_path):
-        log_message(f"Skipped {dataset}, input file not found.")
-        return
-
-    try:
-        with open(input_file_path, 'r', encoding='utf-8') as csv_file:
-            reader = csv.reader(csv_file)
-            header = next(reader)
-            rows = list(reader)
-
-        # Create a mapping of (dimCode, opt_label) to nomItemId for this dataset
-        cursor.execute(f"SELECT dimCode, opt_label, nomItemId FROM {db_table} WHERE fileid = ?", (dataset,))
-        mapping = {(row[0], row[1]): row[2] for row in cursor.fetchall()}
-
-        compacted_rows = [header]
-        exceptions = []
-
-        for row in rows:
-            compacted_row = row[:]
-            for i in range(len(row) - 1):  # Process all columns except the last one
-                key = (i + 1, row[i])  # Match dimCode (1-indexed) with opt_label
-                if key in mapping:
-                    compacted_row[i] = str(mapping[key])
-                else:
-                    exceptions.append(f"No match for {key} in dataset {dataset}")
-            compacted_rows.append(compacted_row)
-
-        # Write compacted file
-        os.makedirs(compacted_folder, exist_ok=True)
-        with open(compacted_file_path, 'w', encoding='utf-8', newline='') as compacted_file:
-            writer = csv.writer(compacted_file)
-            writer.writerows(compacted_rows)
-
-        # Log success
-        log_message(f"Successfully compacted {dataset}")
-
-        # Log exceptions
-        if exceptions:
-            with open(log_file, 'a') as log:
-                log.write("\n".join(exceptions) + "\n")
-
-    except Exception as e:
-        log_message(f"Error processing {dataset}: {str(e)}")
 
 def main():
-    try:
-        # Connect to SQLite database
-        db_conn = sqlite3.connect(db_path)
-        cursor = db_conn.cursor()
+    # Connect to DB
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
 
-        # Get list of datasets
-        cursor.execute(f"SELECT DISTINCT fileid AS dataset FROM {db_table}")
-        datasets = [row[0] for row in cursor.fetchall()]
+    # Get distinct fileids from the fields table
+    cursor.execute(f"SELECT DISTINCT fileid FROM {db_table}")
+    fileids_in_db = [row[0] for row in cursor.fetchall()]
 
-        if not datasets:
-            log_message("No datasets found in database.")
-            return
+    # Get list of csv files in input folder (without extension)
+    input_files = [f[:-4] for f in os.listdir(input_csvs) if f.endswith('.csv')]
+    
+    # Check for files in folder but not in DB
+    for f in input_files:
+        if f not in fileids_in_db:
+            logging.warning(f"File '{f}.csv' found in input folder but not in the DB index.")
 
-        for dataset in datasets:
-            compact_dataset(dataset, db_conn, cursor)
+    # Process each fileid
+    for fileid in fileids_in_db:
+        compacted_file = os.path.join(compacted_folder, f"{fileid}.csv")
+        if os.path.exists(compacted_file):
+            # Already compacted
+            logging.info(f"Skipping '{fileid}.csv' because it is already compacted.")
+            continue
 
-    except Exception as e:
-        log_message(f"Error in main process: {str(e)}")
+        original_file = os.path.join(input_csvs, f"{fileid}.csv")
+        if not os.path.exists(original_file):
+            # CSV does not exist in input, log warning
+            logging.warning(f"File '{fileid}.csv' present in DB index but not in input folder.")
+            continue
 
-    finally:
-        if db_conn:
-            db_conn.close()
+        # Retrieve all field mappings for this fileid
+        # We'll store them in a dictionary keyed by (dim_code, opt_label_lower)
+        cursor.execute(f"SELECT dim_label, dimCode, opt_label, nomItemId FROM {db_table} WHERE fileid=?",
+                       (fileid,))
+        rows = cursor.fetchall()
+
+        mapping = {}
+        dim_labels_by_code = {}
+        for dim_label, dim_code, opt_label, nom_item_id in rows:
+            dim_labels_by_code[dim_code] = dim_label
+            # Normalize opt_label by stripping and lowercasing
+            key = (dim_code, opt_label.strip().lower())
+            mapping[key] = nom_item_id
+
+        # Process the CSV
+        os.makedirs(compacted_folder, exist_ok=True)
+        with open(original_file, 'r', newline='', encoding='utf-8') as infile:
+            reader = csv.reader(infile)
+            header = next(reader)  # Read header line
+
+            # The last column is the values column, do not modify it
+            last_col_index = len(header) - 1
+
+            with open(compacted_file, 'w', newline='', encoding='utf-8') as outfile:
+                writer = csv.writer(outfile)
+
+                # Write header unchanged
+                writer.writerow(header)
+
+                # Process each data row
+                for row_data in reader:
+                    if not row_data:
+                        # Empty line or something irregular
+                        writer.writerow(row_data)
+                        continue
+
+                    new_row = row_data[:]
+                    # Replace values except in the last column
+                    for col_index in range(0, last_col_index):
+                        original_value = row_data[col_index]
+                        # Normalize the cell value for matching
+                        cell_val_normalized = original_value.strip().lower()
+                        dim_code = col_index + 1  # since dimCode is 1-based
+                        
+                        if (dim_code, cell_val_normalized) in mapping:
+                            new_row[col_index] = str(mapping[(dim_code, cell_val_normalized)])
+                        else:
+                            # No match found, leave unchanged but log a warning
+                            logging.warning(
+                                f"No match in DB for '{fileid}.csv' at column '{header[col_index]}' "
+                                f"with value '{original_value}'. Leaving unchanged."
+                            )
+
+                    # Write the processed row
+                    writer.writerow(new_row)
+
+        logging.info(f"Successfully processed and compacted '{fileid}.csv' into '{compacted_file}'")
+
+    conn.close()
+    logging.info("Compaction process completed.")
+
 
 if __name__ == "__main__":
     main()
