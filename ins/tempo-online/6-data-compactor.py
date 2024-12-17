@@ -10,8 +10,7 @@ also write a log entry for each succesful file matched and processed. if files a
 lang = "ro"
 # lang = "en"
 
-# input_folder="data/2-metas/" + lang
-# output_folder="data/3-datasets/" + lang
+ 
 
 import os, csv, sqlite3, logging
 from tqdm import tqdm
