@@ -1,8 +1,17 @@
+""" 
+todo
+
+- [ ] add description
+- [ ] add progress bar
+
+
+"""
+
 lang = "ro"
-lang = "en"
+# lang = "en"
 
 input_folder="data/2-metas/" + lang
-output_folder="data/3-datasets/" + lang
+output_folder="data/4-datasets/" + lang
 
 import requests
 import json

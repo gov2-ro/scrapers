@@ -8,24 +8,24 @@ also write a log entry for each succesful file matched and processed. if files a
 """
 
 lang = "ro"
-lang = "en"
+# lang = "en"
 
 # input_folder="data/2-metas/" + lang
 # output_folder="data/3-datasets/" + lang
 
-import os
-import csv
-import sqlite3
-import logging
+import os, csv, sqlite3, logging
+from tqdm import tqdm
+
 
 # Configuration variables
-input_csvs = "data/_obsolete/csv/"
-db_path = "data/_obsolete/datasets.db"
+input_csvs = "data/4-datasets/" + lang + "/"
+db_path = "data/3-db/" + lang +  "/tempo-indexes.db"
 db_table = 'fields'
-compacted_folder = "data/_obsolete/compact-datasets/"
+compacted_folder = "data/5-compact-datasets/" + lang + "/"
+logfile = "data/5-compact-datasets/" + lang+ "-compaction.log"
 
 # Setup logging
-logging.basicConfig(filename='data/_obsolete/compaction.log', level=logging.INFO,
+logging.basicConfig(filename=logfile, level=logging.INFO,
                     format='%(asctime)s [%(levelname)s] %(message)s')
 
 
@@ -47,7 +47,8 @@ def main():
             logging.warning(f"File '{f}.csv' found in input folder but not in the DB index.")
 
     # Process each fileid
-    for fileid in fileids_in_db:
+    for fileid in tqdm(fileids_in_db, desc="Processing files"):
+
         compacted_file = os.path.join(compacted_folder, f"{fileid}.csv")
         if os.path.exists(compacted_file):
             # Already compacted

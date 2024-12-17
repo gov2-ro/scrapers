@@ -1,12 +1,10 @@
 lang = "ro"
-json_directory = 'data/2-dataset-metas/' + lang
-database_file = 'data/datasets-' + lang + '.db'
+json_directory = 'data/2-metas/' + lang
+database_file = 'data/3-db/' + lang + '/tempo-indexes.db'
 
 import sqlite3
 import json
 import os
-
-
 
 
 # Create or connect to the SQLite database
@@ -92,8 +90,8 @@ for json_file in os.listdir(json_directory):
         # intrerupere_lastPeriod = 'x'
 
 
-        continuareSerie = data['continuareSerie']
-        # continuareSerie = 'kk'
+        # continuareSerie = data['continuareSerie']
+        continuareSerie = 'kk'
         nomJud = data['details']['nomJud']
         nomLoc = data['details']['nomLoc']
         matMaxDim = data['details']['matMaxDim']
@@ -109,13 +107,15 @@ for json_file in os.listdir(json_directory):
         matTime = data['details']['matTime']
 
         try:
+            # have query in separate variable
+    
             cursor.execute('''
                 INSERT INTO datasets (filename, ancestors_1_code, ancestors_2_code, ancestors_3_code, ancestors_4_code, matrixName, periodicitati, definitie, ultimaActualizare, metodologie, observatii, persoaneResponsabile, intrerupere_lastPeriod, continuareSerie, nomJud, nomLoc, matMaxDim, matUMSpec, matSiruta, matCaen1, matCaen2, matRegJ, matCharge, matViews, matDownloads, matActive, matTime)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (filename, ancestors_1_code, ancestors_2_code, ancestors_3_code, ancestors_4_code, matrixName, periodicitati, definitie, ultimaActualizare, metodologie, observatii, persoaneResponsabile, intrerupere_lastPeriod, continuareSerie, nomJud, nomLoc, matMaxDim, matUMSpec, matSiruta, matCaen1, matCaen2, matRegJ, matCharge, matViews, matDownloads, matActive, matTime))
-        except sqlite3.Error as e:
+        except sqlite3.Error as e:           
+            print(f"E 116 inserting into 'datasets' table: {e}")
             print(filename, intrerupere_lastPeriod, continuareSerie, nomJud)
-            print(f"Error inserting into 'datasets' table: {e}")
  
         # Extract data for the "fields" table
         dimensionsMap = data.get('dimensionsMap', [])
