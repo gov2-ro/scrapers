@@ -1,3 +1,8 @@
+
+<mark>ARCHIVED</mark> &rarr; moved to [tempo-ins-dump](https://github.com/gov2-ro/tempo-ins-dump) 
+
+---
+
 [https://tempo-online.gov2.ro/](tempo-online.gov2.ro) - scrapes data from insse/[tempo-online](http://statistici.insse.ro:8077/tempo-online)  
 
 ## Scripts
